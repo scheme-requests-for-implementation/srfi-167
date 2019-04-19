@@ -1,64 +1,201 @@
-<h1 id="title">Title</h1>
-<p>SRFI XYZ: Ordered Key Value Store (wip)</p>
-<h1 id="author">Author</h1>
-<p>Amirouche Boubekki</p>
-<h1 id="status">Status</h1>
-<p>???</p>
-<h1 id="abstract">Abstract</h1>
-<p>This library describe an interface for ordered key-value store that is suitable to implement a storage engine for the generic tuple store SRFI. It maps cleanly with existing ordered key-value databases that may or may not provide transactions.</p>
-<h1 id="rationale">Rationale</h1>
-<p>Ordered key-value stores offers a powerful set of primitives to build databases abstractions (also sometimes called layers). The generic tuple store SRFI is an example of such abstraction. A standard interface for such databases will allow more people to experiment with other abstractions.</p>
-<p>This SRFI does not overlap with existing SRFIs and complement the <a href="https://git.io/fjmez">generic tuple store SRFI</a>.</p>
-<h1 id="specification">Specification</h1>
-<h2 id="database-and-transaction">Database and Transaction</h2>
-<p>Database is a mapping that may or may not support transactions where keys are lexicographically ordered bytevectors and values are bytevectors.</p>
-<p>The following specification defines two disjoint types:</p>
-<ul>
-<li><code>database</code> is a handle over the database</li>
-<li><code>transaction</code> is a handle over a currently running transaction</li>
-</ul>
-<h3 id="make-.-args"><code>(make . args)</code></h3>
-<p>Returns a database object. <code>ARGS</code> is implementation dependant and allows to configure the underlying database connection. It might be the path to the directory or file where the database is stored or the location of a configuration file or the host and port in case the database is accessed over the network.</p>
-<h3 id="close-database-.-args"><code>(close database . args)</code></h3>
-<p>Close <code>DATABASE</code>. <code>ARGS</code> are implementation dependant.</p>
-<h3 id="begin-database-.-args"><code>(begin! database . args)</code></h3>
-<p>Start a transaction and returns a transaction object. <code>ARGS</code> allow to configure the transaction and are implementation dependant.</p>
-<h3 id="commit-transaction-.-args"><code>(commit! transaction . args)</code></h3>
-<p>Commit the transaction. <code>ARGS</code> allow to configure the transaction and are implementation dependant.</p>
-<h3 id="rollback-transaction-.-args"><code>(rollback! transaction . args)</code></h3>
-<p>Rollback the transaction. <code>ARGS</code> allow to configure the transaction and are implementation dependant.</p>
-<h3 id="ref-transaction-key"><code>(ref transaction key)</code></h3>
-<p>Returns the bytevector associated with <code>KEY</code> bytevector using <code>TRANSACTION</code>. If there is no such key returns <code>#f</code>.</p>
-<h3 id="set-transaction-key-value"><code>(set! transaction key value)</code></h3>
-<p>Associates <code>KEY</code> bytevector to <code>VALUE</code> bytevector using <code>TRANSACTION</code>.</p>
-<h3 id="rm-transaction-key"><code>(rm! transaction key)</code></h3>
-<p>Delete the pair associated with <code>KEY</code> bytevector using <code>TRANSACTION</code>.</p>
-<h3 id="range-transaction-prefix"><code>(range transaction prefix)</code></h3>
-<p>Returns a srfi 158 generator of key-value pairs where keys starts with <code>PREFIX</code> bytevector. The stream must lexicographically ordered. <code>PREFIX</code> can be the empty bytevector, in that case the all the pairs are returned in a generator.</p>
-<h2 id="lexicographic-packing">Lexicographic Packing</h2>
-<p>This section defines two procedures <code>(pack . items)</code> and <code>(unpack bytevector)</code> which allows to translate back-and-forth scheme objects to bytevectors in a way that preserves lexicographic ordering. The ordering between types is defined as follow:</p>
-<ol type="1">
-<li><code>*null*</code></li>
-<li>bytevector</li>
-<li>string</li>
-<li>exact number</li>
-<li>float</li>
-<li>double</li>
-<li>boolean</li>
-</ol>
-<p>The implementation might support symbols, lists and vectors at the risk of being incompatible with existing databases.</p>
-<p><code>*null*</code> is a singleton that must be provided by the implementation.</p>
-<p>Note: This is different from srfi 128 because a) it is not possible to pack inexact and exact numbers using the same algorithm while preserving a total order. b) it allows to be compatible with <a href="https://git.io/fjq7T">existing FoundationDB packing function</a>.</p>
-<h3 id="pack-.-items"><code>(pack . items)</code></h3>
-<p>Returns a bytevector that preserve lexicographic ordering as described above. The accepted object types is implementation dependant, see the above note.</p>
-<h3 id="unpack-bytevector"><code>(unpack bytevector)</code></h3>
-<p>Returns values packed in <code>BYTEVECTOR</code>. It is an error, if <code>BYTEVECTOR</code> encode object not supported by the implementation.</p>
-<h1 id="implementation">Implementation</h1>
-<p>The sample implementation rely on scheme mapping (srfi 146) and srfi 158.</p>
-<h1 id="acknowledgements">Acknowledgements</h1>
-<p>Credits goes to WiredTiger and FoundationDB authors for their work on their respective database engines. The author would like to thank Arthur A. Gleckler, Marc Nieper-Wißkirchen for getting together SRFI 146 and Shiro Kawai, John Cowan, Thomas Gilray for their work on SRFI 158.</p>
-<h1 id="copyright">Copyright</h1>
-<p>Copyright (C) Amirouche Boubekki (2019).</p>
-<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
-<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
-<p>THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>SRFI 167: Ordered Key Value Store</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="/srfi.css" type="text/css" />
+    <link href="/favicon.png" rel="icon" sizes="192x192" type="image/png" />
+  </head>
+  <body>
+
+    <h1>Title</h1>
+
+    <p>SRFI 167: Ordered Key Value Store</p>
+
+    <h1>Author</h1>
+
+    <p>Amirouche Boubekki</p>
+
+    <h1>Status</h1>
+
+    <p>This SRFI is currently in <em>draft</em> status.  Here is <a
+    href="https://srfi.schemers.org/srfi-process.html">an
+    explanation</a> of each status that a SRFI can hold.  To provide
+    input on this SRFI, please send email to <code><a
+    href="mailto:srfi+minus+167+at+srfi+dotschemers+dot+org">srfi-167@<span
+    class="antispam">nospam</span>srfi.schemers.org</a></code>.  To
+    subscribe to the list, follow <a
+    href="https://srfi.schemers.org/srfi-list-subscribe.html">these
+    instructions</a>.  You can access previous messages via the
+    mailing list <a
+    href="https://srfi-email.schemers.org/srfi-167">archive</a>.</p>
+
+    <ul>
+      <li>Received: 2019/4/13</li>
+      <li>60-day deadline: 2019/6/17</li>
+      <li>Draft #1 published: 2019/4/18</li>
+    </ul>
+
+    <h1>Abstract</h1>
+
+    <p>This library describe an interface for ordered key-value store
+      that is suitable to implement a storage engine for the generic
+      tuple store SRFI. It maps cleanly with existing ordered
+      key-value databases that may or may not provide
+      transactions.</p>
+
+    <h1>Rationale</h1>
+
+    <p>Ordered key-value stores offers a powerful set of primitives to
+      build databases abstractions (also sometimes called layers). The
+      generic tuple store SRFI is an example of such abstraction. A
+      standard interface for such databases will allow more people to
+      experiment with other abstractions.</p>
+    <p>This SRFI does not overlap with existing SRFIs and complement
+      the <a href="https://srfi.schemers.org/srfi-168/">generic tuple store
+      SRFI</a>.</p>
+
+    <h1>Specification</h1>
+
+    <h2 id="database-and-transaction">Database and Transaction</h2>
+
+    <p>Database is a mapping that may or may not support transactions
+      where keys are lexicographically ordered bytevectors and values
+      are bytevectors.</p>
+    <p>The following specification defines two disjoint types:</p>
+    <ul>
+      <li><code>database</code> is a handle over the database</li>
+      <li><code>transaction</code> is a handle over a currently
+	running transaction</li>
+    </ul>
+
+    <h3 id="make-.-args"><code>(make . args)</code></h3>
+
+    <p>Returns a database object. <code>ARGS</code> is implementation
+      dependant and allows to configure the underlying database
+      connection. It might be the path to the directory or file where
+      the database is stored or the location of a configuration file
+      or the host and port in case the database is accessed over the
+      network.</p>
+
+    <h3 id="close-database-.-args"><code>(close database . args)</code></h3>
+
+    <p>Close <code>DATABASE</code>. <code>ARGS</code> are
+      implementation dependant.</p>
+
+    <h3 id="begin-database-.-args"><code>(begin! database . args)</code></h3>
+
+    <p>Start a transaction and returns a transaction
+      object. <code>ARGS</code> allow to configure the transaction and
+      are implementation dependant.</p>
+
+    <h3 id="commit-transaction-.-args"><code>(commit! transaction . args)</code></h3>
+
+    <p>Commit the transaction. <code>ARGS</code> allow to configure
+      the transaction and are implementation dependant.</p>
+
+    <h3 id="rollback-transaction-.-args"><code>(rollback! transaction . args)</code></h3>
+
+    <p>Rollback the transaction. <code>ARGS</code> allow to configure
+      the transaction and are implementation dependant.</p>
+
+    <h3 id="ref-transaction-key"><code>(ref transaction key)</code></h3>
+
+    <p>Returns the bytevector associated with <code>KEY</code>
+      bytevector using <code>TRANSACTION</code>. If there is no such
+      key returns <code>#f</code>.</p>
+
+    <h3 id="set-transaction-key-value"><code>(set! transaction key value)</code></h3>
+
+    <p>Associates <code>KEY</code> bytevector to <code>VALUE</code>
+      bytevector using <code>TRANSACTION</code>.</p>
+
+    <h3 id="rm-transaction-key"><code>(rm! transaction key)</code></h3>
+
+    <p>Delete the pair associated with <code>KEY</code> bytevector
+      using <code>TRANSACTION</code>.</p>
+
+    <h3 id="range-transaction-prefix"><code>(range transaction prefix)</code></h3>
+
+    <p>Returns a srfi 158 generator of key-value pairs where keys
+      starts with <code>PREFIX</code> bytevector. The stream must
+      lexicographically ordered. <code>PREFIX</code> can be the empty
+      bytevector, in that case the all the pairs are returned in a
+      generator.</p>
+
+    <h2 id="lexicographic-packing">Lexicographic Packing</h2>
+
+    <p>This section defines two procedures <code>(pack . items)</code>
+      and <code>(unpack bytevector)</code> which allows to translate
+      back-and-forth scheme objects to bytevectors in a way that
+      preserves lexicographic ordering. The ordering between types is
+      defined as follow:</p>
+    <ol type="1">
+      <li><code>*null*</code></li>
+      <li>bytevector</li>
+      <li>string</li>
+      <li>exact number</li>
+      <li>float</li>
+      <li>double</li>
+      <li>boolean</li>
+    </ol>
+    <p>The implementation might support symbols, lists and vectors at
+      the risk of being incompatible with existing databases.</p>
+    <p><code>*null*</code> is a singleton that must be provided by the
+      implementation.</p>
+    <p>Note: This is different from srfi 128 because a) it is not
+      possible to pack inexact and exact numbers using the same
+      algorithm while preserving a total order. b) it allows to be
+      compatible with <a href="https://git.io/fjq7T">existing
+      FoundationDB packing function</a>.</p>
+
+    <h3 id="pack-.-items"><code>(pack . items)</code></h3>
+
+    <p>Returns a bytevector that preserve lexicographic ordering as
+      described above. The accepted object types is implementation
+      dependant, see the above note.</p>
+
+    <h3 id="unpack-bytevector"><code>(unpack bytevector)</code></h3>
+
+    <p>Returns values packed in <code>BYTEVECTOR</code>. It is an
+      error, if <code>BYTEVECTOR</code> encode object not supported by
+      the implementation.</p>
+
+    <h1>Implementation</h1>
+
+    <p>The sample implementation rely on scheme mapping (srfi 146) and
+      srfi 158.</p>
+
+    <h1>Acknowledgements</h1>
+
+    <p>Credits goes to WiredTiger and FoundationDB authors for their
+      work on their respective database engines. The author would like
+      to thank Arthur A. Gleckler, Marc Nieper-Wißkirchen for getting
+      together SRFI 146 and Shiro Kawai, John Cowan, Thomas Gilray for
+      their work on SRFI 158.</p>
+
+    <h1>Copyright</h1>
+
+    <p>Copyright (C) Amirouche Boubekki (2019).</p>
+    <p>Permission is hereby granted, free of charge, to any person
+      obtaining a copy of this software and associated documentation
+      files (the “Software”), to deal in the Software without
+      restriction, including without limitation the rights to use,
+      copy, modify, merge, publish, distribute, sublicense, and/or
+      sell copies of the Software, and to permit persons to whom the
+      Software is furnished to do so, subject to the following
+      conditions:</p>
+    <p>The above copyright notice and this permission notice shall be
+      included in all copies or substantial portions of the
+      Software.</p>
+    <p>THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+      OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+      HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+      WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+      FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+      OTHER DEALINGS IN THE SOFTWARE.</p>
+  </body>
+</html>
