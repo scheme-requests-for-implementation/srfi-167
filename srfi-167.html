@@ -74,34 +74,34 @@
 
     <h1>Specification</h1>
 
-    <h2 id="database-and-transaction">Database and Transaction</h2>
+    <h2 id="store-and-transaction">Store and Transaction</h2>
 
-    <p>A database is a mapping that may or may not support
+    <p>A store is a mapping that may or may not support
       transactions.  Keys are lexicographically ordered bytevectors.
       Values are bytevectors.</p>
 
     <p>The following specification defines two disjoint types:</p>
     <ul>
-      <li><code>database</code> is a handle to the database</li>
+      <li><code>store</code> is a handle to the database storage</li>
       <li><code>transaction</code> is a handle to a currently running
         transaction</li>
     </ul>
 
     <h3 id="make-.-args"><code>(make . args)</code></h3>
 
-    <p>Return a database object.  <code>ARGS</code> is
+    <p>Return a store object.  <code>ARGS</code> is
       implementation dependent and allows one to configure the
       underlying database connection.  It might be the path to the
-      directory or file where the database is stored or the location of
+      directory or file where the data is stored or the location of
       a configuration file or the host and port in case the database is
       accessed over the network.</p>
 
-    <h3 id="close-database-.-args"><code>(close database . args)</code></h3>
+    <h3 id="close-store-.-args"><code>(close store . args)</code></h3>
 
-    <p>Close <code>DATABASE</code>. <code>ARGS</code> are
+    <p>Close <code>STORE</code>. <code>ARGS</code> are
       implementation dependent.</p>
 
-    <h3 id="begin-database-.-args"><code>(begin! database . args)</code></h3>
+    <h3 id="begin-store-.-args"><code>(begin! store . args)</code></h3>
 
     <p>Start a transaction and return a transaction object.
       <code>ARGS</code> allows one to configure the transaction and are
