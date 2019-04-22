@@ -35,6 +35,7 @@
       <li>Received: 2019/4/13</li>
       <li>60-day deadline: 2019/6/17</li>
       <li>Draft #1 published: 2019/4/18</li>
+      <li>Draft #2 published: 2019/4/XY</li>
     </ul>
 
     <h1>Abstract</h1>
@@ -82,64 +83,70 @@
 
     <p>The following specification defines two disjoint types:</p>
     <ul>
-      <li><code>store</code> is a handle to the database storage</li>
+      <li><code>store</code> is a handle to the data storage</li>
       <li><code>transaction</code> is a handle to a currently running
         transaction</li>
     </ul>
 
-    <h3 id="make-.-args"><code>(make . args)</code></h3>
+    <h3 id="store-config"><code>(store [config])</code></h3>
 
-    <p>Return a store object.  <code>ARGS</code> is
-      implementation dependent and allows one to configure the
-      underlying database connection.  It might be the path to the
-      directory or file where the data is stored or the location of
-      a configuration file or the host and port in case the database is
-      accessed over the network.</p>
+    <p>Return a store object.  <code>CONFIG</code> is an optional parameter.
+      In the case where <code>CONFIG</code> is provided it must be an association
+      list.  It allows to configure the underlying database connection.  It
+      might be the path to the directory or file where the data is stored or
+      the location of a configuration file or the host and port in case the
+      database is accessed over the network.</p>
 
-    <h3 id="close-store-.-args"><code>(close store . args)</code></h3>
+    <h3 id="store-close-store-config"><code>(store-close store [config])</code></h3>
 
-    <p>Close <code>STORE</code>. <code>ARGS</code> are
-      implementation dependent.</p>
+    <p>Close <code>STORE</code>. <code>CONFIG</code> is optional.  In the
+       case where it is provided, it must be an association list. It is
+       implementation dependent.</p>
 
-    <h3 id="begin-store-.-args"><code>(begin! store . args)</code></h3>
+    <h3 id="store-begin-store-config"><code>(store-begin! store [config])</code></h3>
 
     <p>Start a transaction and return a transaction object.
-      <code>ARGS</code> allows one to configure the transaction and are
-      implementation dependent.</p>
+      <code>CONFIG</code> is optional and allows to configure the transaction.
+      In the case where it is provided it must be an association list. It
+      is implementation dependent.</p>
 
-    <h3 id="commit-transaction-.-args"><code>(commit! transaction . args)</code></h3>
+    <h3 id="store-commit-transaction-config"><code>(store-commit! transaction config)</code></h3>
 
-    <p>Commit the transaction.  <code>ARGS</code> allows one to
-      configure the transaction and are implementation dependent.</p>
+    <p>Commit <code>TRANSACTION</code>.  <code>CONFIG</code> is optional. In
+       the case where <code>CONFIG</code> is provided it must be an association
+       list.  It allows to configure the transaction.  It is implementation dependent.</p>
 
-    <h3 id="rollback-transaction-.-args"><code>(rollback! transaction . args)</code></h3>
+    <h3 id="store-rollback-transaction-config"><code>(store-rollback! transaction [config])</code></h3>
 
-    <p>Roll back the transaction.  <code>ARGS</code> allows one to
-      configure the transaction and are implementation dependent.</p>
+    <p>Roll back <code>TRANSACTION</code>.  <code>CONFIG</code> is optional. In
+       the case where <code>CONFIG</code> is provided it must be an association
+       list.  It is implementation dependent.</p>
 
-    <h3 id="ref-transaction-key"><code>(ref transaction key)</code></h3>
+    <h3 id="store-ref-transaction-key"><code>(store-ref transaction key)</code></h3>
 
     <p>Return the bytevector associated with <code>KEY</code>
       bytevector using <code>TRANSACTION</code>.  If there is no such
       key, return <code>#f</code>.</p>
 
-    <h3 id="set-transaction-key-value"><code>(set! transaction key value)</code></h3>
+    <h3 id="store-set-transaction-key-value"><code>(store-set! transaction key value)</code></h3>
 
     <p>Associate <code>KEY</code> bytevector with <code>VALUE</code>
       bytevector using <code>TRANSACTION</code>.</p>
 
-    <h3 id="rm-transaction-key"><code>(rm! transaction key)</code></h3>
+    <h3 id="store-rm-transaction-key"><code>(store-rm! transaction key)</code></h3>
 
     <p>Delete the pair associated with <code>KEY</code> bytevector
       using <code>TRANSACTION</code>.</p>
 
-    <h3 id="range-transaction-prefix"><code>(range transaction prefix)</code></h3>
+    <h3 id="store-range-transaction-prefix-config"><code>(store-range transaction prefix [CONFIG])</code></h3>
 
     <p>Return a SRFI 158 generator of key-value pairs where keys
-      starts with <code>PREFIX</code> bytevector.  The stream must
-      lexicographically ordered.  <code>PREFIX</code> can be the empty
-      bytevector, in which case the all the pairs are returned in a
-      generator.</p>
+       starts with <code>PREFIX</code> bytevector.  The stream must
+       lexicographically ordered.  <code>PREFIX</code> can be the empty
+       bytevector, in which case the all the pairs are returned in a
+       generator.  <code>CONFIG</code> is optional.  In the case where
+       <code>CONFIG</code> is provided it must be an association list.
+       It is implementation dependent.</p>
 
     <h1>Implementation</h1>
 
