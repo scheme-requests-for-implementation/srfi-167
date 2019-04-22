@@ -74,71 +74,70 @@
        store SRFI</a>.</p>
 
     <h1>Specification</h1>
+    <h2 id="okvs-and-transaction">Okvs and Transaction</h2>
 
-    <h2 id="store-and-transaction">Store and Transaction</h2>
-
-    <p>A store is a mapping that may or may not support
+    <p>A okvs is a mapping that may or may not support
       transactions.  Keys are lexicographically ordered bytevectors.
       Values are bytevectors.</p>
 
     <p>The following specification defines two disjoint types:</p>
     <ul>
-      <li><code>store</code> is a handle to the data storage</li>
+      <li><code>okvs</code> is a handle to the data storage</li>
       <li><code>transaction</code> is a handle to a currently running
         transaction</li>
     </ul>
 
-    <h3 id="store-config"><code>(store [config])</code></h3>
+    <h3 id="okvs-config"><code>(okvs [config])</code></h3>
 
-    <p>Return a store object.  <code>CONFIG</code> is an optional parameter.
+    <p>Return a okvs object.  <code>CONFIG</code> is an optional parameter.
       In the case where <code>CONFIG</code> is provided it must be an association
       list.  It allows to configure the underlying database connection.  It
       might be the path to the directory or file where the data is stored or
       the location of a configuration file or the host and port in case the
       database is accessed over the network.</p>
 
-    <h3 id="store-close-store-config"><code>(store-close store [config])</code></h3>
+    <h3 id="okvs-close-okvs-config"><code>(okvs-close okvs [config])</code></h3>
 
-    <p>Close <code>STORE</code>. <code>CONFIG</code> is optional.  In the
+    <p>Close <code>OKVS</code>. <code>CONFIG</code> is optional.  In the
        case where it is provided, it must be an association list. It is
        implementation dependent.</p>
 
-    <h3 id="store-begin-store-config"><code>(store-begin! store [config])</code></h3>
+    <h3 id="okvs-begin-okvs-config"><code>(okvs-begin! okvs [config])</code></h3>
 
     <p>Start a transaction and return a transaction object.
       <code>CONFIG</code> is optional and allows to configure the transaction.
       In the case where it is provided it must be an association list. It
       is implementation dependent.</p>
 
-    <h3 id="store-commit-transaction-config"><code>(store-commit! transaction config)</code></h3>
+    <h3 id="okvs-commit-transaction-config"><code>(okvs-commit! transaction config)</code></h3>
 
     <p>Commit <code>TRANSACTION</code>.  <code>CONFIG</code> is optional. In
        the case where <code>CONFIG</code> is provided it must be an association
        list.  It allows to configure the transaction.  It is implementation dependent.</p>
 
-    <h3 id="store-rollback-transaction-config"><code>(store-rollback! transaction [config])</code></h3>
+    <h3 id="okvs-rollback-transaction-config"><code>(okvs-rollback! transaction [config])</code></h3>
 
     <p>Roll back <code>TRANSACTION</code>.  <code>CONFIG</code> is optional. In
        the case where <code>CONFIG</code> is provided it must be an association
        list.  It is implementation dependent.</p>
 
-    <h3 id="store-ref-transaction-key"><code>(store-ref transaction key)</code></h3>
+    <h3 id="okvs-ref-transaction-key"><code>(okvs-ref transaction key)</code></h3>
 
     <p>Return the bytevector associated with <code>KEY</code>
       bytevector using <code>TRANSACTION</code>.  If there is no such
       key, return <code>#f</code>.</p>
 
-    <h3 id="store-set-transaction-key-value"><code>(store-set! transaction key value)</code></h3>
+    <h3 id="okvs-set-transaction-key-value"><code>(okvs-set! transaction key value)</code></h3>
 
     <p>Associate <code>KEY</code> bytevector with <code>VALUE</code>
       bytevector using <code>TRANSACTION</code>.</p>
 
-    <h3 id="store-rm-transaction-key"><code>(store-rm! transaction key)</code></h3>
+    <h3 id="okvs-rm-transaction-key"><code>(okvs-rm! transaction key)</code></h3>
 
     <p>Delete the pair associated with <code>KEY</code> bytevector
       using <code>TRANSACTION</code>.</p>
 
-    <h3 id="store-range-transaction-prefix-config"><code>(store-range transaction prefix [CONFIG])</code></h3>
+    <h3 id="okvs-range-transaction-prefix-config"><code>(okvs-range transaction prefix [CONFIG])</code></h3>
 
     <p>Return a SRFI 158 generator of key-value pairs where keys
        starts with <code>PREFIX</code> bytevector.  The stream must
