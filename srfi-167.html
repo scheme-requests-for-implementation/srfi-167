@@ -46,15 +46,31 @@
 
     <h1>Rationale</h1>
 
-    <p>Ordered key-value stores offer a powerful set of primitives to
-      build database abstractions, also sometimes called layers.  The
+    <p>Ordered key-value stores offer a powerful set of simple and
+      elegant primitives to build database abstractions, also
+      sometimes called layers.  The
       <a href="https://srfi.schemers.org/srfi-168/">generic tuple store SRFI</a>
-      is an example of such abstraction.  A standard interface for
-      such databases will allow more people to experiment with other
-      abstractions.</p>
+      is an example of such abstraction and other are possible.  A
+      standard interface for such databases will allow more people to
+      experiment with databases in Scheme.</p>
+
+    <p>While it has not been Scheme force to power databases.  The
+       recent uprising of several ordered key-value stores make the
+       idea of building databases with Scheme more applicable as the
+       performance concerns are solved by lower level languages.</p>
+
+    <p>The author argues that getting started with data management
+       systems with ordered key-value stores is easier to the
+       mind and also reflects the modern industrial pratice that
+       builds (distributed) databases systems possibly with SQL
+       support on top of ordered key-value stores. Otherwise said,
+       this SRFI should offer grounds for apprentices to learn
+       about data storage.  It will also offer a better story
+       (the best?) to data durability in Scheme implementations.</p>
 
     <p>This SRFI does not overlap with existing SRFIs and complements
-      the generic tuple store SRFI.</p>
+       <a href="https://srfi.schemers.org/srfi-168/">generic tuple
+       store SRFI</a>.</p>
 
     <h1>Specification</h1>
 
@@ -68,7 +84,7 @@
     <ul>
       <li><code>database</code> is a handle to the database</li>
       <li><code>transaction</code> is a handle to a currently running
-	transaction</li>
+        transaction</li>
     </ul>
 
     <h3 id="make-.-args"><code>(make . args)</code></h3>
