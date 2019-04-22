@@ -141,48 +141,6 @@
       bytevector, in which case the all the pairs are returned in a
       generator.</p>
 
-    <h2 id="lexicographic-packing">Lexicographic Packing</h2>
-
-    <p>This section defines two procedures <code>(pack . items)</code>
-      and <code>(unpack bytevector)</code> which allow one to
-      translate back and forth between Scheme objects and bytevectors
-      in a way that preserves lexicographic ordering.  The ordering
-      between types is defined as follows:</p>
-
-    <ol type="1">
-      <li><code>*null*</code></li>
-      <li>bytevector</li>
-      <li>string</li>
-      <li>exact number</li>
-      <li>float</li>
-      <li>double</li>
-      <li>boolean</li>
-    </ol>
-
-    <p>The implementation might support symbols, lists and vectors at
-      the risk of being incompatible with existing databases.</p>
-
-    <p><code>*null*</code> is a singleton that must be provided by the
-      implementation.</p>
-
-    <p>Note: This is different from SRFI 128 because a) it is not
-      possible to pack inexact and exact numbers using the same
-      algorithm while preserving a total order. b) it allows
-      compatibility with the <a href="https://git.io/fjq7T">existing
-      FoundationDB packing function</a>.</p>
-
-    <h3 id="pack-.-items"><code>(pack . items)</code></h3>
-
-    <p>Return a bytevector that preserves lexicographic ordering as
-      described above.  The accepted object types are implementation
-      dependent.  See the above note.</p>
-
-    <h3 id="unpack-bytevector"><code>(unpack bytevector)</code></h3>
-
-    <p>Return values packed in <code>BYTEVECTOR</code>.  It is an
-      error if <code>BYTEVECTOR</code> encodes an object not supported
-      by the implementation.</p>
-
     <h1>Implementation</h1>
 
     <p>The <a href="https://srfi.schemers.org/srfi-167/srfi-167.tgz">sample
