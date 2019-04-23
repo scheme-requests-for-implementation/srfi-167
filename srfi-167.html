@@ -87,32 +87,81 @@
         transaction</li>
     </ul>
 
+    <p>In the following <code>CONFIG</code> is always an optional
+        parameter that must be an association list.  Some
+        configuration options are specified to ease portability.  If
+        an implementation doesn't recognize an option it must be
+        ignored. Default values are implementation dependant.</p>
+
     <h3 id="okvs-config"><code>(okvs [config])</code></h3>
 
-    <p>Return a okvs object.  <code>CONFIG</code> is an optional parameter.
-       In the case where <code>CONFIG</code> is provided it must be an association
-       list.  It allows to configure the underlying database connection.  It
-       might be the path to the directory or file where the data is stored or
-       the location of a configuration file or the host and port in case the
-       database is accessed over the network.</p>
+    <p>Return an okvs object.</p>
+
+    <p><code>CONFIG</code> might contain the following options:</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>key</th>
+                <th>description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>'home</code></td>
+                <td>describe the location of the database.  It can be
+                    an address or a directory.</td>
+            </tr>
+            <tr>
+                <td><code>'cache</code></td>
+                <td>an integer describing cache size in bytes.</td>
+            </tr>
+            <tr>
+                <td><code>'create?</code></td>
+                <td>create the database if it does not exist.</td>
+            </tr>
+            <tr>
+                <td><code>'isolation</code></td>
+                <td>a symbol among <code>'read-uncommited</code>,
+                    <code>read-commited</code>, <code>snapshot</code>.</td>
+            </tr>
+            <tr>
+                <td><code>'memory?</code></td>
+                <td>whether to keep data only in memory.</td>
+            </tr>
+            <tr>
+                <td><code>'wal?</code></td>
+                <td>whether to enable write-ahead-log.</td>
+            </tr>
+            <tr>
+                <td><code>'read-only?</code></td>
+                <td>whether to open the database in read-only mode.</td>
+            </tr>
+        </tbody>
+    </table>
 
     <h3 id="okvs-obj"><code>(okvs? obj)</code></h3>
 
     <p>Return <code>#t</code> if <code>OBJ</code> is a <code>okvs</code>,
-       and <code>#f</code> otherwise.
+        and <code>#f</code> otherwise.
 
-    <h3 id="okvs-close-okvs-config"><code>(okvs-close okvs [config])</code></h3>
+        <h3 id="okvs-close-okvs-config"><code>(okvs-close okvs [config])</code></h3>
 
-    <p>Close <code>OKVS</code>. <code>CONFIG</code> is optional.  In the
-       case where it is provided, it must be an association list. It is
-       implementation dependent.</p>
+        <p>Close <code>OKVS</code>. <code>CONFIG</code> is optional.  In the
+            case where it is provided, it must be an association list. It is
+            implementation dependent.</p>
+
+        <p>No <code>CONFIG</code> options are specified.  An
+        implementation may or may not support some implementation
+        specific options.</p>
 
     <h3 id="okvs-begin-okvs-config"><code>(okvs-begin okvs [config])</code></h3>
 
-    <p>Start a transaction and return a transaction object.
-       <code>CONFIG</code> is optional and allows to configure the transaction.
-       In the case where it is provided it must be an association list. It
-       is implementation dependent.</p>
+    <p>Start a transaction and return a transaction object.</p>
+
+    <p>No <code>CONFIG</code> options are specified.  An
+        implementation may or may not support some implementation
+        specific options.</p>
 
     <h3 id="okvs-transaction-obj"><code>(okvs-transaction? obj)</code></h3>
 
@@ -121,15 +170,19 @@
 
     <h3 id="okvs-commit-transaction-config"><code>(okvs-commit transaction config)</code></h3>
 
-    <p>Commit <code>TRANSACTION</code>.  <code>CONFIG</code> is optional. In
-       the case where <code>CONFIG</code> is provided it must be an association
-       list.  It allows to configure the transaction.  It is implementation dependent.</p>
+    <p>Commit <code>TRANSACTION</code>.</p>
+
+    <p>No <code>CONFIG</code> options are specified.  An
+        implementation may or may not support some implementation
+        specific options.</p>
 
     <h3 id="okvs-roll-back-transaction-config"><code>(okvs-roll-back transaction [config])</code></h3>
 
-    <p>Roll back <code>TRANSACTION</code>.  <code>CONFIG</code> is optional. In
-       the case where <code>CONFIG</code> is provided it must be an association
-       list.  It is implementation dependent.</p>
+    <p>Roll back <code>TRANSACTION</code>.</p>
+
+    <p>No <code>CONFIG</code> options are specified.  An
+        implementation may or may not support some implementation
+        specific options.</p>
 
     <h3 id="okvs-ref-transaction-key"><code>(okvs-ref transaction key)</code></h3>
 
@@ -152,9 +205,30 @@
         are between <code>START-KEY</code> bytevector and <code>END-KEY</code>
         possibly including the boundaries depending on <code>START-INCLUDE?</code>
         and <code>END-INCLUDE?</code>.  The stream must lexicographically
-        ordered. <code>CONFIG</code> is optional.  In the case where
-        <code>CONFIG</code> is provided it must be an association list.
-        It is implementation dependent.</p>
+        ordered. <code>CONFIG</code> is optional.</p>
+
+    <p><code>CONFIG</code> might contain the following options:</p
+>
+    <table>
+        <thead>
+            <tr>
+                <th>key</th>
+                <th>description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>'limit</code></td>
+                <td>indicates the maximum number of key-value pairs to return.</td>
+            </tr>
+            <tr>
+                <td><code>'reverse?</code></td>
+                <td>whether key-value pairs will be returned in
+                reverse lexicographical order beginning at the end of
+                the range.</td>
+            </tr>
+        </tbody>
+    </table>
 
     <h3 id="okvs-prefix"><code>(okvs-prefix transaction prefix [CONFIG])</code></h3>
 
@@ -162,9 +236,30 @@
        starts with <code>PREFIX</code> bytevector.  The stream must
        lexicographically ordered.  <code>PREFIX</code> can be the empty
        bytevector, in which case the all the pairs are returned in a
-       generator.  <code>CONFIG</code> is optional.  In the case where
-       <code>CONFIG</code> is provided it must be an association list.
-       It is implementation dependent.</p>
+       generator.</p>
+
+    <p><code>CONFIG</code> might contain the following options:</p
+                                                               >
+    <table>
+        <thead>
+            <tr>
+                <th>key</th>
+                <th>description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>'limit</code></td>
+                <td>indicates the maximum number of key-value pairs to return.</td>
+            </tr>
+            <tr>
+                <td><code>'reverse?</code></td>
+                <td>whether key-value pairs will be returned in
+                    reverse lexicographical order beginning at the end of
+                    the range.</td>
+            </tr>
+        </tbody>
+    </table>
 
     <h1>Implementation</h1>
 
