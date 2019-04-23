@@ -90,11 +90,16 @@
     <h3 id="okvs-config"><code>(okvs [config])</code></h3>
 
     <p>Return a okvs object.  <code>CONFIG</code> is an optional parameter.
-      In the case where <code>CONFIG</code> is provided it must be an association
-      list.  It allows to configure the underlying database connection.  It
-      might be the path to the directory or file where the data is stored or
-      the location of a configuration file or the host and port in case the
-      database is accessed over the network.</p>
+       In the case where <code>CONFIG</code> is provided it must be an association
+       list.  It allows to configure the underlying database connection.  It
+       might be the path to the directory or file where the data is stored or
+       the location of a configuration file or the host and port in case the
+       database is accessed over the network.</p>
+
+    <h3 id="okvs-obj"><code>(okvs? obj)</code></h3>
+
+    <p>Return <code>#t</code> if <code>OBJ</code> is a <code>okvs</code>,
+       and <code>#f</code> otherwise.
 
     <h3 id="okvs-close-okvs-config"><code>(okvs-close okvs [config])</code></h3>
 
@@ -105,9 +110,14 @@
     <h3 id="okvs-begin-okvs-config"><code>(okvs-begin okvs [config])</code></h3>
 
     <p>Start a transaction and return a transaction object.
-      <code>CONFIG</code> is optional and allows to configure the transaction.
-      In the case where it is provided it must be an association list. It
-      is implementation dependent.</p>
+       <code>CONFIG</code> is optional and allows to configure the transaction.
+       In the case where it is provided it must be an association list. It
+       is implementation dependent.</p>
+
+    <h3 id="okvs-transaction-obj"><code>(okvs-transaction? obj)</code></h3>
+
+    <p>Return <code>#t</code> if <code>OBJ</code> is a <code>okvs</code> transaction,
+        and <code>#f</code> otherwise.
 
     <h3 id="okvs-commit-transaction-config"><code>(okvs-commit transaction config)</code></h3>
 
