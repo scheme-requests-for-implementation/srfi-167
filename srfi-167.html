@@ -145,9 +145,18 @@
     <h3 id="okvs-rm-transaction-key"><code>(okvs-rm! transaction key)</code></h3>
 
     <p>Delete the pair associated with <code>KEY</code> bytevector
-      using <code>TRANSACTION</code>.</p>
+        using <code>TRANSACTION</code>.</p>
 
-    <h3 id="okvs-range-transaction-prefix-config"><code>(okvs-range transaction prefix [CONFIG])</code></h3>
+    <h3 id="okvs-range"><code>(okvs-range transaction start-key start-include? end-key end-include? [CONFIG])</code></h3>
+    <p>Return a SRFI 158 generator of key-value pairs where keys
+        are between <code>START-KEY</code> bytevector and <code>END-KEY</code>
+        possibly including the boundaries depending on <code>START-INCLUDE?</code>
+        and <code>END-INCLUDE?</code>.  The stream must lexicographically
+        ordered. <code>CONFIG</code> is optional.  In the case where
+        <code>CONFIG</code> is provided it must be an association list.
+        It is implementation dependent.</p>
+
+    <h3 id="okvs-prefix"><code>(okvs-prefix transaction prefix [CONFIG])</code></h3>
 
     <p>Return a SRFI 158 generator of key-value pairs where keys
        starts with <code>PREFIX</code> bytevector.  The stream must
