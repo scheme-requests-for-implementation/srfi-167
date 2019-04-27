@@ -35,6 +35,7 @@
       <li>Received: 2019/4/13</li>
       <li>60-day deadline: 2019/6/17</li>
       <li>Draft #1 published: 2019/4/18</li>
+      <li>Draft #2 published: 2019/4/XY</li>
     </ul>
 
     <h1>Abstract</h1>
@@ -46,132 +47,225 @@
 
     <h1>Rationale</h1>
 
-    <p>Ordered key-value stores offer a powerful set of primitives to
-      build database abstractions, also sometimes called layers.  The
+    <p>Ordered key-value stores offer a powerful set of simple and
+      elegant primitives to build database abstractions, also
+      sometimes called layers.  The
       <a href="https://srfi.schemers.org/srfi-168/">generic tuple store SRFI</a>
-      is an example of such abstraction.  A standard interface for
-      such databases will allow more people to experiment with other
-      abstractions.</p>
+      is an example of such abstraction and other are possible.  A
+      standard interface for such databases will allow more people to
+      experiment with databases in Scheme.</p>
+
+    <p>While it has not been Scheme force to power databases.  The
+       recent uprising of several ordered key-value stores make the
+       idea of building databases with Scheme more applicable as the
+       performance concerns are solved by lower level languages.</p>
+
+    <p>The author argues that getting started with data management
+       systems with ordered key-value stores is easier to the
+       mind and also reflects the modern industrial pratice that
+       builds (distributed) databases systems possibly with SQL
+       support on top of ordered key-value stores. Otherwise said,
+       this SRFI should offer grounds for apprentices to learn
+       about data storage.  It will also offer a better story
+       (the best?) to data durability in Scheme implementations.</p>
 
     <p>This SRFI does not overlap with existing SRFIs and complements
-      the generic tuple store SRFI.</p>
+       <a href="https://srfi.schemers.org/srfi-168/">generic tuple
+       store SRFI</a>.</p>
 
     <h1>Specification</h1>
+    <h2 id="okvs-and-transaction">Okvs and Transaction</h2>
 
-    <h2 id="database-and-transaction">Database and Transaction</h2>
-
-    <p>A database is a mapping that may or may not support
+    <p>A okvs is a mapping that may or may not support
       transactions.  Keys are lexicographically ordered bytevectors.
       Values are bytevectors.</p>
 
     <p>The following specification defines two disjoint types:</p>
     <ul>
-      <li><code>database</code> is a handle to the database</li>
+      <li><code>okvs</code> is a handle to the data storage</li>
       <li><code>transaction</code> is a handle to a currently running
-	transaction</li>
+        transaction</li>
     </ul>
 
-    <h3 id="make-.-args"><code>(make . args)</code></h3>
+    <p>In the following <code>CONFIG</code> is always an optional
+        parameter that must be an association list.  Some
+        configuration options are specified to ease portability.  If
+        an implementation doesn't recognize an option it must be
+        ignored. Default values are implementation dependant.</p>
 
-    <p>Return a database object.  <code>ARGS</code> is
-      implementation dependent and allows one to configure the
-      underlying database connection.  It might be the path to the
-      directory or file where the database is stored or the location of
-      a configuration file or the host and port in case the database is
-      accessed over the network.</p>
+    <h3 id="okvs-config"><code>(okvs [config])</code></h3>
 
-    <h3 id="close-database-.-args"><code>(close database . args)</code></h3>
+    <p>Return an okvs object.</p>
 
-    <p>Close <code>DATABASE</code>. <code>ARGS</code> are
-      implementation dependent.</p>
+    <p><code>CONFIG</code> might contain the following options:</p>
 
-    <h3 id="begin-database-.-args"><code>(begin! database . args)</code></h3>
+    <table>
+        <thead>
+            <tr>
+                <th>key</th>
+                <th>description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>'home</code></td>
+                <td>describe the location of the database.  It can be
+                    an address or a directory.</td>
+            </tr>
+            <tr>
+                <td><code>'cache</code></td>
+                <td>an integer describing cache size in bytes.</td>
+            </tr>
+            <tr>
+                <td><code>'create?</code></td>
+                <td>create the database if it does not exist.</td>
+            </tr>
+            <tr>
+                <td><code>'isolation</code></td>
+                <td>a symbol among <code>'read-uncommited</code>,
+                    <code>read-commited</code>, <code>snapshot</code>.</td>
+            </tr>
+            <tr>
+                <td><code>'memory?</code></td>
+                <td>whether to keep data only in memory.</td>
+            </tr>
+            <tr>
+                <td><code>'wal?</code></td>
+                <td>whether to enable write-ahead-log.</td>
+            </tr>
+            <tr>
+                <td><code>'read-only?</code></td>
+                <td>whether to open the database in read-only mode.</td>
+            </tr>
+        </tbody>
+    </table>
 
-    <p>Start a transaction and return a transaction object.
-      <code>ARGS</code> allows one to configure the transaction and are
-      implementation dependent.</p>
+    <h3 id="okvs-obj"><code>(okvs? obj)</code></h3>
 
-    <h3 id="commit-transaction-.-args"><code>(commit! transaction . args)</code></h3>
+    <p>Return <code>#t</code> if <code>OBJ</code> is a <code>okvs</code>,
+        and <code>#f</code> otherwise.
 
-    <p>Commit the transaction.  <code>ARGS</code> allows one to
-      configure the transaction and are implementation dependent.</p>
+        <h3 id="okvs-close-okvs-config"><code>(okvs-close okvs [config])</code></h3>
 
-    <h3 id="rollback-transaction-.-args"><code>(rollback! transaction . args)</code></h3>
+        <p>Close <code>OKVS</code>. <code>CONFIG</code> is optional.  In the
+            case where it is provided, it must be an association list. It is
+            implementation dependent.</p>
 
-    <p>Roll back the transaction.  <code>ARGS</code> allows one to
-      configure the transaction and are implementation dependent.</p>
+        <p>No <code>CONFIG</code> options are specified.  An
+        implementation may or may not support some implementation
+        specific options.</p>
 
-    <h3 id="ref-transaction-key"><code>(ref transaction key)</code></h3>
+    <h3 id="okvs-transaction-begin"><code>(okvs-transaction-begin okvs [config])</code></h3>
+
+    <p>Start a transaction and return a transaction object.</p>
+
+    <p>No <code>CONFIG</code> options are specified.  An
+        implementation may or may not support some implementation
+        specific options.</p>
+
+    <h3 id="okvs-transaction-obj"><code>(okvs-transaction? obj)</code></h3>
+
+    <p>Return <code>#t</code> if <code>OBJ</code> is a <code>okvs</code> transaction,
+        and <code>#f</code> otherwise.
+
+    <h3 id="okvs-transaction-commit"><code>(okvs-transaction-commit transaction config)</code></h3>
+
+    <p>Commit <code>TRANSACTION</code>.</p>
+
+    <p>No <code>CONFIG</code> options are specified.  An
+        implementation may or may not support some implementation
+        specific options.</p>
+
+    <h3 id="okvs-transaction-roll-back"><code>(okvs-transaction-roll-back transaction [config])</code></h3>
+
+    <p>Roll back <code>TRANSACTION</code>.</p>
+
+    <p>No <code>CONFIG</code> options are specified.  An
+        implementation may or may not support some implementation
+        specific options.</p>
+
+    <h3 id="okvs-ref-transaction-key"><code>(okvs-ref transaction key)</code></h3>
 
     <p>Return the bytevector associated with <code>KEY</code>
       bytevector using <code>TRANSACTION</code>.  If there is no such
       key, return <code>#f</code>.</p>
 
-    <h3 id="set-transaction-key-value"><code>(set! transaction key value)</code></h3>
+    <h3 id="okvs-set-transaction-key-value"><code>(okvs-set! transaction key value)</code></h3>
 
     <p>Associate <code>KEY</code> bytevector with <code>VALUE</code>
       bytevector using <code>TRANSACTION</code>.</p>
 
-    <h3 id="rm-transaction-key"><code>(rm! transaction key)</code></h3>
+    <h3 id="okvs-rm-transaction-key"><code>(okvs-rm! transaction key)</code></h3>
 
     <p>Delete the pair associated with <code>KEY</code> bytevector
-      using <code>TRANSACTION</code>.</p>
+        using <code>TRANSACTION</code>.</p>
 
-    <h3 id="range-transaction-prefix"><code>(range transaction prefix)</code></h3>
+    <h3 id="okvs-range"><code>(okvs-range transaction start-key start-include? end-key end-include? [CONFIG])</code></h3>
+    <p>Return a SRFI 158 generator of key-value pairs where keys
+        are between <code>START-KEY</code> bytevector and <code>END-KEY</code>
+        possibly including the boundaries depending on <code>START-INCLUDE?</code>
+        and <code>END-INCLUDE?</code>.  The stream must lexicographically
+        ordered. <code>CONFIG</code> is optional.</p>
+
+    <p><code>CONFIG</code> might contain the following options:</p
+>
+    <table>
+        <thead>
+            <tr>
+                <th>key</th>
+                <th>description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>'limit</code></td>
+                <td>indicates the maximum number of key-value pairs to return.</td>
+            </tr>
+            <tr>
+                <td><code>'reverse?</code></td>
+                <td>whether key-value pairs will be returned in
+                reverse lexicographical order beginning at the end of
+                the range.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3 id="okvs-prefix"><code>(okvs-prefix transaction prefix [CONFIG])</code></h3>
 
     <p>Return a SRFI 158 generator of key-value pairs where keys
-      starts with <code>PREFIX</code> bytevector.  The stream must
-      lexicographically ordered.  <code>PREFIX</code> can be the empty
-      bytevector, in which case the all the pairs are returned in a
-      generator.</p>
+       starts with <code>PREFIX</code> bytevector.  The stream must
+       lexicographically ordered.  <code>PREFIX</code> can be the empty
+       bytevector, in which case the all the pairs are returned in a
+       generator.</p>
 
-    <h2 id="lexicographic-packing">Lexicographic Packing</h2>
-
-    <p>This section defines two procedures <code>(pack . items)</code>
-      and <code>(unpack bytevector)</code> which allow one to
-      translate back and forth between Scheme objects and bytevectors
-      in a way that preserves lexicographic ordering.  The ordering
-      between types is defined as follows:</p>
-
-    <ol type="1">
-      <li><code>*null*</code></li>
-      <li>bytevector</li>
-      <li>string</li>
-      <li>exact number</li>
-      <li>float</li>
-      <li>double</li>
-      <li>boolean</li>
-    </ol>
-
-    <p>The implementation might support symbols, lists and vectors at
-      the risk of being incompatible with existing databases.</p>
-
-    <p><code>*null*</code> is a singleton that must be provided by the
-      implementation.</p>
-
-    <p>Note: This is different from SRFI 128 because a) it is not
-      possible to pack inexact and exact numbers using the same
-      algorithm while preserving a total order. b) it allows
-      compatibility with the <a href="https://git.io/fjq7T">existing
-      FoundationDB packing function</a>.</p>
-
-    <h3 id="pack-.-items"><code>(pack . items)</code></h3>
-
-    <p>Return a bytevector that preserves lexicographic ordering as
-      described above.  The accepted object types are implementation
-      dependent.  See the above note.</p>
-
-    <h3 id="unpack-bytevector"><code>(unpack bytevector)</code></h3>
-
-    <p>Return values packed in <code>BYTEVECTOR</code>.  It is an
-      error if <code>BYTEVECTOR</code> encodes an object not supported
-      by the implementation.</p>
+    <p><code>CONFIG</code> might contain the following options:</p
+                                                               >
+    <table>
+        <thead>
+            <tr>
+                <th>key</th>
+                <th>description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>'limit</code></td>
+                <td>indicates the maximum number of key-value pairs to return.</td>
+            </tr>
+            <tr>
+                <td><code>'reverse?</code></td>
+                <td>whether key-value pairs will be returned in
+                    reverse lexicographical order beginning at the end of
+                    the range.</td>
+            </tr>
+        </tbody>
+    </table>
 
     <h1>Implementation</h1>
 
     <p>The <a href="https://srfi.schemers.org/srfi-167/srfi-167.tgz">sample
       implementation</a> relies on scheme mappings (SRFI 146) and
-      generators and accumulators (SRFI 158).</p>
+      SRFI-158 generators.</p>
 
     <h1>Acknowledgements</h1>
 
