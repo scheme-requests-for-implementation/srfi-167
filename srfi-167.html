@@ -51,14 +51,14 @@
       elegant primitives to build database abstractions, also
       sometimes called layers.  The
       <a href="https://srfi.schemers.org/srfi-168/">generic tuple store SRFI</a>
-      is an example of such abstraction and other are possible.  A
+      is an example of such abstraction, and others are possible.  A
       standard interface for such databases will allow more people to
       experiment with databases in Scheme.</p>
 
-    <p>While it has not been Scheme force to power databases.  The
-       recent uprising of several ordered key-value stores make the
+    <p>While it has not been Scheme's forte to power databases, the
+       recent appearance of several ordered key-value stores make the
        idea of building databases with Scheme more applicable as the
-       performance concerns are solved by lower level languages.</p>
+       performance concerns are solved by lower-level languages.</p>
 
     <p>The author argues that getting started with data management
        systems with ordered key-value stores is easier to the
@@ -67,7 +67,7 @@
        support on top of ordered key-value stores. Otherwise said,
        this SRFI should offer grounds for apprentices to learn
        about data storage.  It will also offer a better story
-       (the best?) to data durability in Scheme implementations.</p>
+       (the best?) for data durability in Scheme implementations.</p>
 
     <p>This SRFI does not overlap with existing SRFIs and complements
        <a href="https://srfi.schemers.org/srfi-168/">generic tuple
@@ -87,11 +87,11 @@
         transaction</li>
     </ul>
 
-    <p>In the following <code>CONFIG</code> is always an optional
+    <p>In the following, <code>CONFIG</code> is always an optional
         parameter that must be an association list.  Some
         configuration options are specified to ease portability.  If
-        an implementation doesn't recognize an option it must be
-        ignored. Default values are implementation dependant.</p>
+        an implementation doesn't recognize an option, it must be
+        ignored. Default values are implementation dependent.</p>
 
     <h3 id="okvs-config"><code>(okvs [config])</code></h3>
 
