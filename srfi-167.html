@@ -36,6 +36,7 @@
       <li>60-day deadline: 2019/6/17</li>
       <li>Draft #1 published: 2019/4/18</li>
       <li>Draft #2 published: 2019/4/26</li>
+      <li>Draft #3 published: 2019/5/XY</li>
     </ul>
 
     <h1>Abstract</h1>
@@ -184,23 +185,71 @@
         implementation may or may not support some implementation
         specific options.</p>
 
-    <h3 id="okvs-ref-transaction-key"><code>(okvs-ref transaction key)</code></h3>
+
+    <h3 id="transactional"><code>(transactional proc) -&gt; procedure</code></h3>
+
+    <p>Take a procedure as argument that takes a <code>transaction</code>
+        object as its first argument as well as zero or more
+        additional arguments.
+        <code>transactional</code> will return a procedure that can be
+        called with a <code>transaction</code> object or a <code>okvs</code> object
+        as its first argument.  <code>transactional</code> is responsible for
+        beginning, committing, rolling back and retrying transactions
+        when appropriate.  If an exception is raised during the
+        transaction, it is up to <code>transactional</code> to roll back
+        the transaction and re-raise the exception if appropriate.  In
+        the case where the implementation implements transaction retry,
+        <code>PROC</code> must be idempotent.  The returned procedure
+        will return all the values returned by <code>PROC</code> or raise.</p>
+
+    <p><code>transactional</code> allows one to compose procedures
+        that interact with the database without manually having to
+        manage transactions.</p>
+
+    <p>A procedure is said to be decorated with
+        <code>transactional</code> when it is passed to
+        <code>transactional</code> and assigned to a scheme variable:</p>
+
+    <div class="sourceCode" id="cb1"><pre class="sourceCode scheme"><code class="sourceCode scheme"><a class="sourceLine" id="cb1-1" data-line-number="1">(<span class="kw">define</span><span class="fu"> everything </span>(transactional %everything))</a></code></pre></div>
+
+    <p>In the above, <code>%everything</code> is decorated by
+        <code>transactional</code> and assigned to
+        <code>everything</code>.</p>
+
+    <h3 id="okvs-ref-transaction-key"><code>(okvs-ref some key)</code></h3>
+
+    <p><code>SOME</code> can be a <code>okvs</code> or <code>transaction</code>
+        object.  This procedure should be decorated with with
+        transactional.</p>
 
     <p>Return the bytevector associated with <code>KEY</code>
-      bytevector using <code>TRANSACTION</code>.  If there is no such
-      key, return <code>#f</code>.</p>
+        bytevector using <code>SOME</code>.  If there is no such
+        key, return <code>#f</code>.</p>
 
-    <h3 id="okvs-set-transaction-key-value"><code>(okvs-set! transaction key value)</code></h3>
+    <h3 id="okvs-set-transaction-key-value"><code>(okvs-set! some key value)</code></h3>
+
+    <p><code>SOME</code> can be a <code>okvs</code> or <code>transaction</code>
+        object.  This procedure should be decorated with with
+        transactional.</p>
 
     <p>Associate <code>KEY</code> bytevector with <code>VALUE</code>
-      bytevector using <code>TRANSACTION</code>.</p>
+        bytevector using <code>SOME</code>.</p>
 
-    <h3 id="okvs-rm-transaction-key"><code>(okvs-rm! transaction key)</code></h3>
+    <h3 id="okvs-rm-transaction-key"><code>(okvs-rm! some key)</code></h3>
+
+    <p><code>SOME</code> can be a <code>okvs</code> or <code>transaction</code>
+        object.  This procedure should be decorated with with
+        transactional.</p>
 
     <p>Delete the pair associated with <code>KEY</code> bytevector
-        using <code>TRANSACTION</code>.</p>
+        using <code>SOME</code>.</p>
 
-    <h3 id="okvs-range"><code>(okvs-range transaction start-key start-include? end-key end-include? [CONFIG])</code></h3>
+    <h3 id="okvs-range"><code>(okvs-range some start-key start-include? end-key end-include? [CONFIG])</code></h3>
+
+    <p><code>SOME</code> can be a <code>okvs</code> or <code>transaction</code>
+        object.  This procedure should be decorated with with
+        transactional.</p>
+
     <p>Return a SRFI 158 generator of key-value pairs where keys
         are between <code>START-KEY</code> bytevector and <code>END-KEY</code>
         possibly including the boundaries depending on <code>START-INCLUDE?</code>
@@ -230,7 +279,11 @@
         </tbody>
     </table>
 
-    <h3 id="okvs-prefix"><code>(okvs-prefix transaction prefix [CONFIG])</code></h3>
+    <h3 id="okvs-prefix"><code>(okvs-prefix some prefix [CONFIG])</code></h3>
+
+    <p><code>SOME</code> can be a <code>okvs</code> or <code>transaction</code>
+        object.  This procedure should be decorated with with
+        transactional.</p>
 
     <p>Return a SRFI 158 generator of key-value pairs where keys
        starts with <code>PREFIX</code> bytevector.  The stream must
