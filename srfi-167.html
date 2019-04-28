@@ -94,7 +94,7 @@
         an implementation doesn't recognize an option, it must be
         ignored. Default values are implementation dependent.</p>
 
-    <h3 id="okvs-config"><code>(okvs [config])</code></h3>
+    <h3 id="okvs"><code>(okvs [config])</code></h3>
 
     <p>Return an okvs object.</p>
 
@@ -141,7 +141,7 @@
         </tbody>
     </table>
 
-    <h3 id="okvs-obj"><code>(okvs? obj)</code></h3>
+    <h3 id="okvs-predicate"><code>(okvs? obj)</code></h3>
 
     <p>Return <code>#t</code> if <code>OBJ</code> is a <code>okvs</code>,
         and <code>#f</code> otherwise.
@@ -164,7 +164,7 @@
         implementation may or may not support some implementation
         specific options.</p>
 
-    <h3 id="okvs-transaction-obj"><code>(okvs-transaction? obj)</code></h3>
+    <h3 id="okvs-transaction"><code>(okvs-transaction? obj)</code></h3>
 
     <p>Return <code>#t</code> if <code>OBJ</code> is a <code>okvs</code> transaction,
         and <code>#f</code> otherwise.
@@ -216,7 +216,7 @@
         <code>transactional</code> and assigned to
         <code>everything</code>.</p>
 
-    <h3 id="okvs-ref-transaction-key"><code>(okvs-ref some key)</code></h3>
+    <h3 id="okvs-ref"><code>(okvs-ref some key)</code></h3>
 
     <p><code>SOME</code> can be a <code>okvs</code> or <code>transaction</code>
         object.  This procedure should be decorated with with
@@ -226,7 +226,7 @@
         bytevector using <code>SOME</code>.  If there is no such
         key, return <code>#f</code>.</p>
 
-    <h3 id="okvs-set-transaction-key-value"><code>(okvs-set! some key value)</code></h3>
+    <h3 id="okvs-set"><code>(okvs-set! some key value)</code></h3>
 
     <p><code>SOME</code> can be a <code>okvs</code> or <code>transaction</code>
         object.  This procedure should be decorated with with
@@ -235,7 +235,7 @@
     <p>Associate <code>KEY</code> bytevector with <code>VALUE</code>
         bytevector using <code>SOME</code>.</p>
 
-    <h3 id="okvs-rm-transaction-key"><code>(okvs-rm! some key)</code></h3>
+    <h3 id="okvs-rm"><code>(okvs-rm! some key)</code></h3>
 
     <p><code>SOME</code> can be a <code>okvs</code> or <code>transaction</code>
         object.  This procedure should be decorated with with
