@@ -186,41 +186,41 @@
         specific options.</p>
 
 
-    <h3 id="transactional"><code>(transactional proc) -&gt; procedure</code></h3>
+    <h3 id="okvs-transactional"><code>(okvs-transactional proc) -&gt; procedure</code></h3>
 
     <p>Take a procedure as argument that takes a <code>transaction</code>
         object as its first argument as well as zero or more
         additional arguments.
-        <code>transactional</code> will return a procedure that can be
+        <code>okvs-transactional</code> will return a procedure that can be
         called with a <code>transaction</code> object or a <code>okvs</code> object
-        as its first argument.  <code>transactional</code> is responsible for
+        as its first argument.  <code>okvs-transactional</code> is responsible for
         beginning, committing, rolling back and retrying transactions
         when appropriate.  If an exception is raised during the
-        transaction, it is up to <code>transactional</code> to roll back
+        transaction, it is up to <code>okvs-transactional</code> to roll back
         the transaction and re-raise the exception if appropriate.  In
         the case where the implementation implements transaction retry,
         <code>PROC</code> must be idempotent.  The returned procedure
         will return all the values returned by <code>PROC</code> or raise.</p>
 
-    <p><code>transactional</code> allows one to compose procedures
+    <p><code>okvs-transactional</code> allows one to compose procedures
         that interact with the database without manually having to
         manage transactions.</p>
 
     <p>A procedure is said to be decorated with
-        <code>transactional</code> when it is passed to
-        <code>transactional</code> and assigned to a scheme variable:</p>
+        <code>okvs-transactional</code> when it is passed to
+        <code>okvs-transactional</code> and assigned to a scheme variable:</p>
 
-    <div class="sourceCode" id="cb1"><pre class="sourceCode scheme"><code class="sourceCode scheme"><a class="sourceLine" id="cb1-1" data-line-number="1">(<span class="kw">define</span><span class="fu"> everything </span>(transactional %everything))</a></code></pre></div>
+    <div class="sourceCode" id="cb1"><pre class="sourceCode scheme"><code class="sourceCode scheme"><a class="sourceLine" id="cb1-1" data-line-number="1">(<span class="kw">define</span><span class="fu"> query </span>(okvs-transactional %query))</a></code></pre></div>
 
-    <p>In the above, <code>%everything</code> is decorated by
-        <code>transactional</code> and assigned to
-        <code>everything</code>.</p>
+    <p>In the above, <code>%query</code> is decorated by
+        <code>okvs-transactional</code> and assigned to
+        <code>query</code>.</p>
 
     <h3 id="okvs-ref"><code>(okvs-ref some key)</code></h3>
 
     <p><code>SOME</code> can be a <code>okvs</code> or <code>transaction</code>
         object.  This procedure should be decorated with with
-        transactional.</p>
+        okvs-transactional.</p>
 
     <p>Return the bytevector associated with <code>KEY</code>
         bytevector using <code>SOME</code>.  If there is no such
@@ -230,7 +230,7 @@
 
     <p><code>SOME</code> can be a <code>okvs</code> or <code>transaction</code>
         object.  This procedure should be decorated with with
-        transactional.</p>
+        okvs-transactional.</p>
 
     <p>Associate <code>KEY</code> bytevector with <code>VALUE</code>
         bytevector using <code>SOME</code>.</p>
@@ -239,7 +239,7 @@
 
     <p><code>SOME</code> can be a <code>okvs</code> or <code>transaction</code>
         object.  This procedure should be decorated with with
-        transactional.</p>
+        okvs-transactional.</p>
 
     <p>Delete the pair associated with <code>KEY</code> bytevector
         using <code>SOME</code>.</p>
@@ -248,7 +248,7 @@
 
     <p><code>SOME</code> can be a <code>okvs</code> or <code>transaction</code>
         object.  This procedure should be decorated with with
-        transactional.</p>
+        okvs-transactional.</p>
 
     <p>Return a SRFI 158 generator of key-value pairs where keys
         are between <code>START-KEY</code> bytevector and <code>END-KEY</code>
@@ -286,7 +286,7 @@
 
     <p><code>SOME</code> can be a <code>okvs</code> or <code>transaction</code>
         object.  This procedure should be decorated with with
-        transactional.</p>
+        okvs-transactional.</p>
 
     <p>Return a SRFI 158 generator of key-value pairs where keys
        starts with <code>PREFIX</code> bytevector.  The stream must
