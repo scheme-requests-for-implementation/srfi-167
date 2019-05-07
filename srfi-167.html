@@ -223,39 +223,23 @@
         <code>okvs-transactional</code> and assigned to
         <code>query</code>.</p>
 
-    <h3 id="okvs-ref"><code>(okvs-ref some key)</code></h3>
-
-    <p><code>SOME</code> can be a <code>okvs</code> or <code>transaction</code>
-        object.  This procedure should be decorated with with
-        okvs-transactional.</p>
+    <h3 id="okvs-ref"><code>(okvs-ref transaction key)</code></h3>
 
     <p>Return the bytevector associated with <code>KEY</code>
-        bytevector using <code>SOME</code>.  If there is no such
+        bytevector using <code>TRANSACTION</code>.  If there is no such
         key, return <code>#f</code>.</p>
 
-    <h3 id="okvs-set"><code>(okvs-set! some key value)</code></h3>
-
-    <p><code>SOME</code> can be a <code>okvs</code> or <code>transaction</code>
-        object.  This procedure should be decorated with with
-        okvs-transactional.</p>
+    <h3 id="okvs-set"><code>(okvs-set! transaction key value)</code></h3>
 
     <p>Associate <code>KEY</code> bytevector with <code>VALUE</code>
-        bytevector using <code>SOME</code>.</p>
+        bytevector using <code>TRANSACTION</code>.</p>
 
-    <h3 id="okvs-rm"><code>(okvs-rm! some key)</code></h3>
-
-    <p><code>SOME</code> can be a <code>okvs</code> or <code>transaction</code>
-        object.  This procedure should be decorated with with
-        okvs-transactional.</p>
+    <h3 id="okvs-rm"><code>(okvs-rm! transaction key)</code></h3>
 
     <p>Delete the pair associated with <code>KEY</code> bytevector
-        using <code>SOME</code>.</p>
+        using <code>TRANSACTION</code>.</p>
 
-    <h3 id="okvs-range"><code>(okvs-range some start-key start-include? end-key end-include? [CONFIG])</code></h3>
-
-    <p><code>SOME</code> can be a <code>okvs</code> or <code>transaction</code>
-        object.  This procedure should be decorated with with
-        okvs-transactional.</p>
+    <h3 id="okvs-range"><code>(okvs-range transaction start-key start-include? end-key end-include? [CONFIG])</code></h3>
 
     <p>Return a SRFI 158 generator of key-value pairs where keys
         are between <code>START-KEY</code> bytevector and <code>END-KEY</code>
@@ -290,11 +274,7 @@
         </tbody>
     </table>
 
-    <h3 id="okvs-prefix"><code>(okvs-prefix some prefix [CONFIG])</code></h3>
-
-    <p><code>SOME</code> can be a <code>okvs</code> or <code>transaction</code>
-        object.  This procedure should be decorated with with
-        okvs-transactional.</p>
+    <h3 id="okvs-prefix"><code>(okvs-prefix transaction prefix [CONFIG])</code></h3>
 
     <p>Return a SRFI 158 generator of key-value pairs where keys
        starts with <code>PREFIX</code> bytevector.  The stream must
