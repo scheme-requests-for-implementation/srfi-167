@@ -18,6 +18,11 @@ because FDB doesn't provide such a thing.
 Homepage: https://foundationdb.org
 License: Apache 2
 
+## Sqlite LSM4
+
+Homepage: https://sqlite.org/src4/doc/trunk/www/lsmusr.wiki#performance_tuning
+License: None
+
 ## LevelDB
 
 LevelDB is widely available ordered key value store.  It doesn't

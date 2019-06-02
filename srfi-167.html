@@ -36,6 +36,7 @@
       <li>60-day deadline: 2019/6/17</li>
       <li>Draft #1 published: 2019/4/18</li>
       <li>Draft #2 published: 2019/4/26</li>
+      <li>Draft #3 published: 2019/5/XY</li>
     </ul>
 
     <h1>Abstract</h1>
@@ -93,7 +94,7 @@
         an implementation doesn't recognize an option, it must be
         ignored. Default values are implementation dependent.</p>
 
-    <h3 id="okvs-config"><code>(okvs [config])</code></h3>
+    <h3 id="okvs"><code>(okvs [config])</code></h3>
 
     <p>Return an okvs object.</p>
 
@@ -140,7 +141,7 @@
         </tbody>
     </table>
 
-    <h3 id="okvs-obj"><code>(okvs? obj)</code></h3>
+    <h3 id="okvs-predicate"><code>(okvs? obj)</code></h3>
 
     <p>Return <code>#t</code> if <code>OBJ</code> is a <code>okvs</code>,
         and <code>#f</code> otherwise.
@@ -152,18 +153,29 @@
             implementation dependent.</p>
 
         <p>No <code>CONFIG</code> options are specified.  An
-        implementation may or may not support some implementation
-        specific options.</p>
+            implementation may or may not support some implementation
+            specific options.</p>
+
+
+    <h3 id="okvs-debug"><code>(okvs-debug okvs proc)</code></h3>
+
+    <p>Call <code>PROC</code> in lexicographic order for all key-value
+        pairs found in <code>OKVS</code>.</p>
 
     <h3 id="okvs-transaction-begin"><code>(okvs-transaction-begin okvs [config])</code></h3>
 
-    <p>Start a transaction and return a transaction object.</p>
+    <p>Start a transaction and return a transaction object. The transaction must
+        be associated with a newly created hash-table with the default comparator.</p>
 
     <p>No <code>CONFIG</code> options are specified.  An
         implementation may or may not support some implementation
         specific options.</p>
 
-    <h3 id="okvs-transaction-obj"><code>(okvs-transaction? obj)</code></h3>
+    <h3 id="okvs-transaction-metadata"><code>(okvs-transaction-metadata transaction)</code></h3>
+
+    <p>Return the hash-table associated with <code>TRANSACTION</code>.</p>
+
+    <h3 id="okvs-transaction"><code>(okvs-transaction? obj)</code></h3>
 
     <p>Return <code>#t</code> if <code>OBJ</code> is a <code>okvs</code> transaction,
         and <code>#f</code> otherwise.
@@ -184,62 +196,79 @@
         implementation may or may not support some implementation
         specific options.</p>
 
-    <h3 id="okvs-ref-transaction-key"><code>(okvs-ref transaction key)</code></h3>
+
+    <h3 id="okvs-transactional"><code>(okvs-transactional proc) -&gt; procedure</code></h3>
+
+    <p>Take a procedure as argument that takes a <code>transaction</code>
+        object as its first argument as well as zero or more
+        additional arguments.
+        <code>okvs-transactional</code> will return a procedure that can be
+        called with a <code>transaction</code> object or a <code>okvs</code> object
+        as its first argument.  <code>okvs-transactional</code> is responsible for
+        beginning, committing, rolling back and retrying transactions
+        when appropriate.  If an exception is raised during the
+        transaction, it is up to <code>okvs-transactional</code> to roll back
+        the transaction and re-raise the exception if appropriate.  In
+        the case where the implementation implements transaction retry,
+        <code>PROC</code> must be idempotent.  The returned procedure
+        will return all the values returned by <code>PROC</code> or raise.</p>
+
+    <p><code>okvs-transactional</code> allows one to compose procedures
+        that interact with the database without manually having to
+        manage transactions.</p>
+
+    <p>A procedure is said to be decorated with
+        <code>okvs-transactional</code> when it is passed to
+        <code>okvs-transactional</code> and assigned to a scheme variable:</p>
+
+    <div class="sourceCode" id="cb1"><pre class="sourceCode scheme"><code class="sourceCode scheme"><a class="sourceLine" id="cb1-1" data-line-number="1">(<span class="kw">define</span><span class="fu"> query </span>(okvs-transactional %query))</a></code></pre></div>
+
+    <p>In the above, <code>%query</code> is decorated by
+        <code>okvs-transactional</code> and assigned to
+        <code>query</code>.</p>
+
+    <h3 id="okvs-ref"><code>(okvs-ref some key)</code></h3>
+
+    <p><code>SOME</code> can be a <code>okvs</code> or <code>transaction</code>
+        object.  This procedure should be decorated with with
+        okvs-transactional.</p>
 
     <p>Return the bytevector associated with <code>KEY</code>
-      bytevector using <code>TRANSACTION</code>.  If there is no such
-      key, return <code>#f</code>.</p>
+        bytevector using <code>SOME</code>.  If there is no such
+        key, return <code>#f</code>.</p>
 
-    <h3 id="okvs-set-transaction-key-value"><code>(okvs-set! transaction key value)</code></h3>
+    <h3 id="okvs-set"><code>(okvs-set! some key value)</code></h3>
+
+    <p><code>SOME</code> can be a <code>okvs</code> or <code>transaction</code>
+        object.  This procedure should be decorated with with
+        okvs-transactional.</p>
 
     <p>Associate <code>KEY</code> bytevector with <code>VALUE</code>
-      bytevector using <code>TRANSACTION</code>.</p>
+        bytevector using <code>SOME</code>.</p>
 
-    <h3 id="okvs-rm-transaction-key"><code>(okvs-rm! transaction key)</code></h3>
+    <h3 id="okvs-rm"><code>(okvs-rm! some key)</code></h3>
+
+    <p><code>SOME</code> can be a <code>okvs</code> or <code>transaction</code>
+        object.  This procedure should be decorated with with
+        okvs-transactional.</p>
 
     <p>Delete the pair associated with <code>KEY</code> bytevector
-        using <code>TRANSACTION</code>.</p>
+        using <code>SOME</code>.</p>
 
-    <h3 id="okvs-range"><code>(okvs-range transaction start-key start-include? end-key end-include? [CONFIG])</code></h3>
+    <h3 id="okvs-range"><code>(okvs-range some start-key start-include? end-key end-include? [CONFIG])</code></h3>
+
+    <p><code>SOME</code> can be a <code>okvs</code> or <code>transaction</code>
+        object.  This procedure should be decorated with with
+        okvs-transactional.</p>
+
     <p>Return a SRFI 158 generator of key-value pairs where keys
         are between <code>START-KEY</code> bytevector and <code>END-KEY</code>
         possibly including the boundaries depending on <code>START-INCLUDE?</code>
         and <code>END-INCLUDE?</code>.  The stream must lexicographically
         ordered. <code>CONFIG</code> is optional.</p>
 
-    <p><code>CONFIG</code> might contain the following options:</p
->
-    <table>
-        <thead>
-            <tr>
-                <th>key</th>
-                <th>description</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td><code>'limit</code></td>
-                <td>indicates the maximum number of key-value pairs to return.</td>
-            </tr>
-            <tr>
-                <td><code>'reverse?</code></td>
-                <td>whether key-value pairs will be returned in
-                reverse lexicographical order beginning at the end of
-                the range.</td>
-            </tr>
-        </tbody>
-    </table>
+    <p><code>CONFIG</code> might contain the following options:</p>
 
-    <h3 id="okvs-prefix"><code>(okvs-prefix transaction prefix [CONFIG])</code></h3>
-
-    <p>Return a SRFI 158 generator of key-value pairs where keys
-       starts with <code>PREFIX</code> bytevector.  The stream must
-       lexicographically ordered.  <code>PREFIX</code> can be the empty
-       bytevector, in which case the all the pairs are returned in a
-       generator.</p>
-
-    <p><code>CONFIG</code> might contain the following options:</p
-                                                               >
     <table>
         <thead>
             <tr>
@@ -257,6 +286,48 @@
                 <td>whether key-value pairs will be returned in
                     reverse lexicographical order beginning at the end of
                     the range.</td>
+            </tr>
+            <tr>
+                <td><code>'offset</code></td>
+                <td>specify how many keys must be skipped.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3 id="okvs-prefix"><code>(okvs-prefix some prefix [CONFIG])</code></h3>
+
+    <p><code>SOME</code> can be a <code>okvs</code> or <code>transaction</code>
+        object.  This procedure should be decorated with with
+        okvs-transactional.</p>
+
+    <p>Return a SRFI 158 generator of key-value pairs where keys
+       starts with <code>PREFIX</code> bytevector.  The stream must
+       lexicographically ordered.  <code>PREFIX</code> can be the empty
+       bytevector, in which case the all the pairs are returned in a
+       generator.</p>
+
+    <p><code>CONFIG</code> might contain the following options:</p>
+    <table>
+        <thead>
+            <tr>
+                <th>key</th>
+                <th>description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>'limit</code></td>
+                <td>indicates the maximum number of key-value pairs to return.</td>
+            </tr>
+            <tr>
+                <td><code>'reverse?</code></td>
+                <td>whether key-value pairs will be returned in
+                    reverse lexicographical order beginning at the end of
+                    the range.</td>
+            </tr>
+            <tr>
+                <td><code>'offset</code></td>
+                <td>specify how many keys must be skipped.</td>
             </tr>
         </tbody>
     </table>
