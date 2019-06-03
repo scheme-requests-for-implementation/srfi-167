@@ -122,11 +122,6 @@
                 <td>create the database if it does not exist.</td>
             </tr>
             <tr>
-                <td><code>'isolation</code></td>
-                <td>a symbol among <code>'read-uncommited</code>,
-                    <code>read-commited</code>, <code>snapshot</code>.</td>
-            </tr>
-            <tr>
                 <td><code>'memory?</code></td>
                 <td>whether to keep data only in memory.</td>
             </tr>
@@ -166,6 +161,8 @@
 
     <p>Start a transaction and return a transaction object. The transaction must
         be associated with a newly created hash-table with the default comparator.</p>
+
+    <p>Every transaction must be commited or roll-backed.</p>
 
     <p>No <code>CONFIG</code> options are specified.  An
         implementation may or may not support some implementation
@@ -246,7 +243,7 @@
     <p>Associate <code>KEY</code> bytevector with <code>VALUE</code>
         bytevector using <code>SOME</code>.</p>
 
-    <h3 id="okvs-rm"><code>(okvs-rm! some key)</code></h3>
+    <h3 id="okvs-clear"><code>(okvs-clear! some key)</code></h3>
 
     <p><code>SOME</code> can be a <code>okvs</code> or <code>transaction</code>
         object.  This procedure should be decorated with with
