@@ -1,4 +1,4 @@
-(define-library (ovks)
+(define-library (okvs)
 
   (export okvs
           okvs?
@@ -16,10 +16,15 @@
           okvs-range
           okvs-prefix)
 
+  (import (only (chezscheme) void))
   (import (scheme base))
+  (import (scheme case-lambda))
   (import (scheme list))
   (import (scheme hash-table))
-  (import (scheme bytevector))
+  (import (only (scheme bytevector)
+                bytevector=?
+                u8-list->bytevector
+                bytevector->u8-list))
   (import (scheme comparator))
   (import (scheme generator))
   (import (scheme mapping))
@@ -32,18 +37,14 @@
       (store memorydb-store memorydb-store!))
 
     (define (lexicographic<? bytevector other)
-      (let ((end (min (bytevector-length bytevector)
-                      (bytevector-length other))))
-        (let loop ((index 0))
-          (if (negative? (- end index))
-              #f
-              (let ((delta (- (bytevector-u8-ref bytevector index)
-                              (bytevector-u8-ref other index))))
-                (if (zero? delta)
-                    (loop (+ 1 index))
-                    (if (negative? delta)
-                        #t
-                        #f)))))))
+      (negative? (lexicographic-compare bytevector other)))
+
+    (define vector-hash
+      (comparator-hash-function
+       (make-vector-comparator (make-default-comparator)
+                               bytevector?
+                               bytevector-length
+                               bytevector-u8-ref)))
 
     (define (make-lexicographic-comparator)
       (make-comparator bytevector? bytevector=? lexicographic<? vector-hash))
@@ -58,22 +59,39 @@
       (mapping-for-each (memorydb-store okvs) proc))
 
     (define-record-type <transaction>
-      (make-transaction database store)
+      (make-transaction database store metadata)
       okvs-transaction?
       (database transaction-database transaction-database!)
       (store transaction-store transaction-store!)
       (metadata okvs-transaction-metadata))
 
-    (define (okvs-transaction-begin! database . args)
+    (define (okvs-transaction-begin database . args)
       (make-transaction database
                         (memorydb-store database)
                         (make-hash-table (make-default-comparator))))
 
-    (define (okvs-transaction-commit! transaction . args)
+    (define (okvs-transaction-commit transaction . args)
       (memorydb-store! (transaction-database transaction) (transaction-store transaction)))
 
-    (define (okvs-transaction-rollback! transaction . args)
+    (define (okvs-transaction-roll-back transaction . args)
       (void))
+
+    (define (%okvs-in-transaction okvs proc failure success)
+      (let ((transaction (okvs-transaction-begin okvs)))
+        (guard (ex
+                (else
+                 (okvs-transaction-roll-back transaction)
+                 (failure ex)))
+          (call-with-values (lambda () (apply proc transaction))
+              (lambda out
+                (okvs-transaction-commit transaction)
+                (apply success out))))))
+
+    (define okvs-in-transaction
+      (case-lambda
+        ((okvs proc) (okvs-in-transaction okvs proc raise values))
+        ((okvs proc failure) (okvs-in-transaction okvs proc failure values))
+        ((okvs proc failure success) (%okvs-in-transaction okvs proc failure success))))
 
     (define (okvs-ref transaction key)
       (mapping-ref/default (transaction-store transaction) key #f))
@@ -93,16 +111,24 @@
               (loop (generator)))))))
 
     (define (lexicographic-compare bytevector other)
+      ;; Return -1 if BYTEVECTOR is before OTHER, 0 if equal
+      ;; and otherwise 1
       (let ((end (min (bytevector-length bytevector)
                       (bytevector-length other))))
         (let loop ((index 0))
-          (if (negative? (- end index))
-              0
+          (if (zero? (- end index))
+              (if (= (bytevector-length bytevector)
+                     (bytevector-length other))
+                  0
+                  (if (< (bytevector-length bytevector)
+                         (bytevector-length other))
+                      -1
+                      1))
               (let ((delta (- (bytevector-u8-ref bytevector index)
                               (bytevector-u8-ref other index))))
                 (if (zero? delta)
                     (loop (+ 1 index))
-                    (if (< delta 0)
+                    (if (negative? delta)
                         -1
                         1)))))))
 
@@ -114,22 +140,21 @@
 
     (define (okvs-range transaction start-key start-include? end-key end-include? . args)
       (let* ((store (transaction-store transaction)))
-        (let loop ((key (mapping-key-successor store start-key #f))
+        (let loop ((key (mapping-key-successor store start-key (const #f)))
                    (out (if start-include?
                             (okvs-range-init store start-key)
                             '())))
           (if (not key)
               (list->generator (reverse! out))
-              (case (lexicographic-compare end-key key)
+              (case (lexicographic-compare key end-key)
                 ((-1)
-                 (loop (mapping-key-successor store key #f)
+                 (loop (mapping-key-successor store key (const #f))
                        (cons (cons key (mapping-ref/default store key #f)) out)))
                 ((0)
                  (if end-include?
-                     (loop #f
-                           (cons (cons key (mapping-ref/default store key #f)) out))
+                     (loop #f (cons (cons key (mapping-ref/default store key #f)) out))
                      (loop #f out)))
-                ((-1) (loop #f out)))))))
+                ((1) (loop #f out)))))))
 
     (define (strinc bytevector)
       "Return the first bytevector that is not prefix of BYTEVECTOR"
