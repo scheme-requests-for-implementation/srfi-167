@@ -252,6 +252,14 @@
     <p>Delete the pair associated with <code>KEY</code> bytevector
         using <code>SOME</code>.</p>
 
+    <h3 id="okvs-range-remove"><code>(okvs-range-remove! some start-key start-include? end-key end-include?)</code></h3>
+
+    <p><code>SOME</code> can be a <code>okvs</code> or <code>transaction</code>
+        object.  This procedure should be decorated with with
+        okvs-transactional.</p>
+
+    <p>Remove all pairs in the specified range.</p>
+
     <h3 id="okvs-range"><code>(okvs-range some start-key start-include? end-key end-include? [CONFIG])</code></h3>
 
     <p><code>SOME</code> can be a <code>okvs</code> or <code>transaction</code>
