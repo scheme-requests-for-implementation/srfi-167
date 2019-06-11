@@ -104,7 +104,7 @@
                 (else
                  (okvs-transaction-roll-back transaction)
                  (failure ex)))
-          (call-with-values (lambda () (apply proc transaction))
+          (call-with-values (lambda () (proc transaction))
               (lambda out
                 (okvs-transaction-commit transaction)
                 (apply success out))))))
