@@ -49,7 +49,7 @@
     (define (make-lexicographic-comparator)
       (make-comparator bytevector? bytevector=? lexicographic<? vector-hash))
 
-    (define (okvs home create? . args)
+    (define (okvs home . args)
       (make-memorydb (mapping (make-lexicographic-comparator))))
 
     (define (okvs-close . args)

@@ -11,13 +11,13 @@
 
 (test-equal "create and close database"
   #t
-  (let ((okvs (okvs #f #f)))
+  (let ((okvs (okvs #f)))
     (okvs-close okvs)
     #t))
 
 (test-equal "set and get"
   #vu8(1 2 3 42)
-  (let ((okvs (okvs #f #f)))
+  (let ((okvs (okvs #f)))
     ;; set
     (let ((transaction (okvs-transaction-begin okvs)))
       (okvs-set! transaction #vu8(13 37) #vu8(1 2 3 42))
@@ -31,7 +31,7 @@
 
 (test-equal "set, overwrite and ref"
   #vu8(42)
-  (let ((okvs (okvs #f #f)))
+  (let ((okvs (okvs #f)))
     ;; set
     (let ((transaction (okvs-transaction-begin okvs)))
       (okvs-set! transaction #vu8(13 37) #vu8(1 2 3 42))
@@ -49,7 +49,7 @@
 
 (test-equal "range"
   (list (cons #vu8(20 16) #vu8(2)) (cons #vu8(20 17) #vu8(3)))
-  (let ((okvs (okvs #f #f)))
+  (let ((okvs (okvs #f)))
     ;; set
     (let ((transaction (okvs-transaction-begin okvs)))
       (okvs-set! transaction #vu8(20 18) #vu8(4))
@@ -67,7 +67,7 @@
 
 (test-equal "lexicographic range"
   (list (cons #vu8(20 16) #vu8(2)) (cons #vu8(20 17 01) #vu8(3)))
-  (let ((okvs (okvs #f #f)))
+  (let ((okvs (okvs #f)))
     ;; set
     (let ((transaction (okvs-transaction-begin okvs)))
       (okvs-set! transaction #vu8(20 18) #vu8(4))
@@ -89,7 +89,7 @@
     (#vu8(20 16 1) . #vu8(2))
     (#vu8(20 17) . #vu8(3))
     (#vu8(20 17 1) . #vu8(2)))
-  (let ((okvs (okvs #f #f)))
+  (let ((okvs (okvs #f)))
     ;; set
     (let ((transaction (okvs-transaction-begin okvs)))
       (okvs-set! transaction #vu8(20 17 01) #vu8(2))
@@ -111,7 +111,7 @@
 ;; (test-equal "prefix offset limit reverse"
 ;;   '((#vu8(20 17) . #vu8(3))
 ;;     (#vu8(20 16 1) . #vu8(2)))
-;;   (let ((okvs (okvs #f #f)))
+;;   (let ((okvs (okvs #f)))
 ;;     ;; set
 ;;     (let ((transaction (okvs-transaction-begin okvs)))
 ;;       (okvs-set! transaction #vu8(20 17 01) #vu8(2))
@@ -134,7 +134,7 @@
   (let ((keys '(#vu8(1 42 0 20 2 55 97 98 53 118 54 110 103 113 119 49 117 53 121 111 57 50 104 110 107 105 109 112 105 104 0 21 102 21 103)
                 #vu8(1 42 0 21 1 21 102 21 103 2 55 97 98 53 118 54 110 103 113 119 49 117 53 121 111 57 50 104 110 107 105 109 112 105 104 0)
                 #vu8(1 42 0 21 2 21 103 2 55 97 98 53 118 54 110 103 113 119 49 117 53 121 111 57 50 104 110 107 105 109 112 105 104 0 21 102))))
-    (let ((okvs (okvs #f #f)))
+    (let ((okvs (okvs #f)))
       ;; set
       (let ((transaction (okvs-transaction-begin okvs)))
         (let loop ((keys keys))
