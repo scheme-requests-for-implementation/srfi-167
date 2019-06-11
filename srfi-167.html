@@ -37,6 +37,7 @@
       <li>Draft #1 published: 2019/4/18</li>
       <li>Draft #2 published: 2019/4/26</li>
       <li>Draft #3 published: 2019/6/2</li>
+      <li>Draft #4 published: 2019/6/11</li>
     </ul>
 
     <h1>Abstract</h1>
@@ -92,7 +93,7 @@
         parameter that is an association list.  Some configuration
         options are specified to ease portability.  If an
         implementation doesn't recognize an option, it must be
-        ignored. Default values are implementation dependent. It is an
+        ignored. Default values are implementation-dependent. It is an
         error if this argument is not an association list.</p>
 
     <h3 id="okvs"><code>(okvs home [config])</code></h3>
@@ -198,7 +199,7 @@
         <code>PROC</code> returns, the transaction is commited and
         <code>okvs-in-transaction</code> applies whatever <code>PROC</code>
         returned to the <code>SUCCESS</code> procedure. If <code>PROC</code>
-        raises an exception, the transaction is roll-backed and <code>FAILURE</code>
+        raises an exception, the transaction is rolled back and <code>FAILURE</code>
         is called with the exception condition. By default <code>FAILURE</code>
         is <code>raise</code> and <code>SUCCESS</code> is <code>identity</code>.
     </p>
