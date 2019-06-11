@@ -1,35 +1,45 @@
+;; Copyright © 2019 Amirouche BOUBEKKI <amirouche at hyper dev>
+;;
+;;; Permission is hereby granted, free of charge, to any person
+;;; obtaining a copy of this software and associated documentation
+;;; files (the "Software"), to deal in the Software without
+;;; restriction, including without limitation the rights to use,
+;;; copy, modify, merge, publish, distribute, sublicense, and/or
+;;; sell copies of the Software, and to permit persons to whom the
+;;; Software is furnished to do so, subject to the following
+;;; conditions:
+;;;
+;;; The above copyright notice and this permission notice shall be
+;;; included in all copies or substantial portions of the Software.
+;;;
+;;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+;;; EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+;;; OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+;;; NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+;;; HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+;;; WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+;;; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+;;; OTHER DEALINGS IN THE SOFTWARE.
 (import (scheme base)
         (scheme generator)
-        (cffi wiredtiger okvs)
+        (okvs)
         (srfi :64)
         (arew)
         (prefix (arew filename) filename:)
         (scheme process-context))
 
 
-(define-syntax-rule (with-directory name body ...)
-  (begin
-    (when (filename:exists? name)
-      (filename:delete name))
-    (filename:make name)
-    (let ((out (begin body ...)))
-      (filename:delete name)
-      out)))
+(test-begin "okvs")
 
-(define-syntax-rule (test-check name expected computed)
-  (test-equal name expected (with-directory "wt" computed)))
-
-(test-begin "wiredtiger-okvs")
-
-(test-check "create and close database"
+(test-equal "create and close database"
   #t
-  (let ((okvs (okvs '((home . "wt") (create? . #t)))))
+  (let ((okvs (okvs #f)))
     (okvs-close okvs)
     #t))
 
-(test-check "set and get"
+(test-equal "set and get"
   #vu8(1 2 3 42)
-  (let ((okvs (okvs '((home . "wt") (create? . #t)))))
+  (let ((okvs (okvs #f)))
     ;; set
     (let ((transaction (okvs-transaction-begin okvs)))
       (okvs-set! transaction #vu8(13 37) #vu8(1 2 3 42))
@@ -41,9 +51,9 @@
       (okvs-close okvs)
       out)))
 
-(test-check "set, overwrite and ref"
+(test-equal "set, overwrite and ref"
   #vu8(42)
-  (let ((okvs (okvs '((home . "wt") (create? . #t)))))
+  (let ((okvs (okvs #f)))
     ;; set
     (let ((transaction (okvs-transaction-begin okvs)))
       (okvs-set! transaction #vu8(13 37) #vu8(1 2 3 42))
@@ -59,9 +69,9 @@
       (okvs-close okvs)
       out)))
 
-(test-check "range"
+(test-equal "range"
   (list (cons #vu8(20 16) #vu8(2)) (cons #vu8(20 17) #vu8(3)))
-  (let ((okvs (okvs '((home . "wt") (create? . #t)))))
+  (let ((okvs (okvs #f)))
     ;; set
     (let ((transaction (okvs-transaction-begin okvs)))
       (okvs-set! transaction #vu8(20 18) #vu8(4))
@@ -77,9 +87,9 @@
       (okvs-close okvs)
       out)))
 
-(test-check "lexicographic range"
+(test-equal "lexicographic range"
   (list (cons #vu8(20 16) #vu8(2)) (cons #vu8(20 17 01) #vu8(3)))
-  (let ((okvs (okvs '((home . "wt") (create? . #t)))))
+  (let ((okvs (okvs #f)))
     ;; set
     (let ((transaction (okvs-transaction-begin okvs)))
       (okvs-set! transaction #vu8(20 18) #vu8(4))
@@ -96,12 +106,12 @@
       (okvs-close okvs)
       out)))
 
-(test-check "prefix"
+(test-equal "prefix"
   '((#vu8(20 16) . #vu8(2))
     (#vu8(20 16 1) . #vu8(2))
     (#vu8(20 17) . #vu8(3))
     (#vu8(20 17 1) . #vu8(2)))
-  (let ((okvs (okvs '((home . "wt") (create? . #t)))))
+  (let ((okvs (okvs #f)))
     ;; set
     (let ((transaction (okvs-transaction-begin okvs)))
       (okvs-set! transaction #vu8(20 17 01) #vu8(2))
@@ -117,58 +127,36 @@
       (okvs-close okvs)
       out)))
 
-(test-check "prefix offset limit reverse"
-  '((#vu8(20 17) . #vu8(3))
-    (#vu8(20 16 1) . #vu8(2)))
-  (let ((okvs (okvs '((home . "wt") (create? . #t)))))
-    ;; set
-    (let ((transaction (okvs-transaction-begin okvs)))
-      (okvs-set! transaction #vu8(20 17 01) #vu8(2))
-      (okvs-set! transaction #vu8(20 17) #vu8(3))
-      (okvs-set! transaction #vu8(42 42) #vu8(5))
-      (okvs-set! transaction #vu8(01 02) #vu8(1))
-      (okvs-set! transaction #vu8(20 16) #vu8(2))
-      (okvs-set! transaction #vu8(20 16 01) #vu8(2))
-      (okvs-transaction-commit transaction))
-    ;; get
-    (let* ((transaction (okvs-transaction-begin okvs))
-           (out (generator->list (okvs-prefix transaction
-                                              #vu8(20)
-                                              '((offset . 1) (limit . 2) (reverse? #t))))))
-      (okvs-close okvs)
-      out)))
+;;
+;;; Not supported by the sample implementation
+;;
+;; (test-equal "prefix offset limit reverse"
+;;   '((#vu8(20 17) . #vu8(3))
+;;     (#vu8(20 16 1) . #vu8(2)))
+;;   (let ((okvs (okvs #f)))
+;;     ;; set
+;;     (let ((transaction (okvs-transaction-begin okvs)))
+;;       (okvs-set! transaction #vu8(20 17 01) #vu8(2))
+;;       (okvs-set! transaction #vu8(20 17) #vu8(3))
+;;       (okvs-set! transaction #vu8(42 42) #vu8(5))
+;;       (okvs-set! transaction #vu8(01 02) #vu8(1))
+;;       (okvs-set! transaction #vu8(20 16) #vu8(2))
+;;       (okvs-set! transaction #vu8(20 16 01) #vu8(2))
+;;       (okvs-transaction-commit transaction))
+;;     ;; get
+;;     (let* ((transaction (okvs-transaction-begin okvs))
+;;            (out (generator->list (okvs-prefix transaction
+;;                                               #vu8(20)
+;;                                               '((offset . 1) (limit . 2) (reverse? #t))))))
+;;       (okvs-close okvs)
+;;       out)))
 
-(define query
-  (okvs-transactional
-   (lambda (transaction)
-     (okvs-set! transaction #vu8(42) #vu8(42))
-     (values (okvs-ref transaction #vu8(42))
-             (okvs-ref transaction #vu8(42))))))
-
-(test-check "transactional with database"
-  (list #vu8(42) #vu8(42))
-  (let ((okvs (okvs '((home . "wt") (create? . #t)))))
-    (call-with-values (lambda () (query okvs))
-      (lambda out
-        (okvs-close okvs)
-        out))))
-
-(test-check "transactional with transaction"
-  (list #vu8(42) #vu8(42))
-  (let ((okvs (okvs '((home . "wt") (create? . #t)))))
-    (let ((transaction (okvs-transaction-begin okvs)))
-      (call-with-values (lambda () (query transaction))
-        (lambda out
-          (okvs-transaction-commit transaction)
-          (okvs-close okvs)
-          out)))))
-
-(test-check "search startswith out-of-range key"
+(test-equal "search startswith out-of-range key"
   '()
   (let ((keys '(#vu8(1 42 0 20 2 55 97 98 53 118 54 110 103 113 119 49 117 53 121 111 57 50 104 110 107 105 109 112 105 104 0 21 102 21 103)
                 #vu8(1 42 0 21 1 21 102 21 103 2 55 97 98 53 118 54 110 103 113 119 49 117 53 121 111 57 50 104 110 107 105 109 112 105 104 0)
                 #vu8(1 42 0 21 2 21 103 2 55 97 98 53 118 54 110 103 113 119 49 117 53 121 111 57 50 104 110 107 105 109 112 105 104 0 21 102))))
-    (let ((okvs (okvs '((home . "wt") (create? . #t)))))
+    (let ((okvs (okvs #f)))
       ;; set
       (let ((transaction (okvs-transaction-begin okvs)))
         (let loop ((keys keys))
