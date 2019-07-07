@@ -154,20 +154,23 @@
         implementation may or may not support some implementation
         specific options.</p>
 
-    <h3 id="okvs-transaction-begin"><code>(okvs-transaction-begin okvs [config])</code></h3>
+    <h3 id="okvs-transaction-begin"><code>(okvs-transaction-begin okvs [make-state [config]])</code></h3>
 
     <p>Start a transaction and return a transaction object. The transaction must
-        be associated with a newly created hash-table with the default comparator.</p>
+        be associated with a newly created state object as returned by
+        <code>MAKE-STATE</code>. The default implementation of <code>MAKE-STATE</code>
+        returns a <a>SRFI-125: Intermediate hash tables</a> with comparator returned
+        by the <a>SRFI-128: Comparators</a> procedure <code>(make-default-comparator)</code></p>
 
-    <p>Every transaction must be commited or rolled back.</p>
+    <p>Every transaction must be commit or rolled back.</p>
 
     <p>No <code>CONFIG</code> options are specified.  An
         implementation may or may not support some implementation
         specific options.</p>
 
-    <h3 id="okvs-transaction-metadata"><code>(okvs-transaction-metadata transaction)</code></h3>
+    <h3 id="okvs-transaction-state"><code>(okvs-transaction-state transaction)</code></h3>
 
-    <p>Return the hash-table associated with <code>TRANSACTION</code>.</p>
+    <p>Return the state associated with <code>TRANSACTION</code>.</p>
 
     <h3 id="okvs-transaction"><code>(okvs-transaction? obj)</code></h3>
 
