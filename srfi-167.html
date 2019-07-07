@@ -208,33 +208,68 @@
         <code>CONFIG</code> is passed as-is to <code>okvs-transaction-begin</code>.
     </p>
 
-    <h3 id="okvs-ref"><code>(okvs-ref transaction key)</code></h3>
+    <h3 id="okvs-ref"><code>(okvs-ref some key)</code></h3>
 
     <p>Return the bytevector associated with <code>KEY</code>
-        bytevector using <code>TRANSACTION</code>.  If there is no such
+        bytevector using <code>SOME</code>.  If there is no such
         key, return <code>#f</code>.</p>
 
-    <h3 id="okvs-set"><code>(okvs-set! transaction key value)</code></h3>
+    <p><code>SOME</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
+        In the case where <code>SOME</code> is an <code>okvs</code> object
+        the implementation should execute the operation, preferably,
+        without starting a transaction. If the underlying engine, doesn't
+        allow to execute operations without transaction, the operation should
+        handle starting and commiting the transaction.</p>
+
+    <h3 id="okvs-set"><code>(okvs-set! some key value)</code></h3>
 
     <p>Associate <code>KEY</code> bytevector with <code>VALUE</code>
-        bytevector using <code>TRANSACTION</code>.</p>
+        bytevector using <code>SOME</code>.</p>
 
-    <h3 id="okvs-delete"><code>(okvs-delete! transaction key)</code></h3>
+    <p><code>SOME</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
+        In the case where <code>SOME</code> is an <code>okvs</code> object
+        the implementation should execute the operation, preferably,
+        without starting a transaction. If the underlying engine, doesn't
+        allow to execute operations without transaction, the operation should
+        handle starting and commiting the transaction.</p>
+
+    <h3 id="okvs-delete"><code>(okvs-delete! some key)</code></h3>
 
     <p>Delete the pair associated with <code>KEY</code> bytevector
-        using <code>TRANSACTION</code>.</p>
+        using <code>SOME</code>.</p>
 
-    <h3 id="okvs-range-remove"><code>(okvs-range-remove! transaction start-key start-include? end-key end-include?)</code></h3>
+    <p><code>SOME</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
+        In the case where <code>SOME</code> is an <code>okvs</code> object
+        the implementation should execute the operation, preferably,
+        without starting a transaction. If the underlying engine, doesn't
+        allow to execute operations without transaction, the operation should
+        handle starting and commiting the transaction.</p>
+
+    <h3 id="okvs-range-remove"><code>(okvs-range-remove! some start-key start-include? end-key end-include?)</code></h3>
 
     <p>Remove all pairs in the specified range.</p>
 
-    <h3 id="okvs-range"><code>(okvs-range transaction start-key start-include? end-key end-include? [CONFIG])</code></h3>
+    <p><code>SOME</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
+        In the case where <code>SOME</code> is an <code>okvs</code> object
+        the implementation should execute the operation, preferably,
+        without starting a transaction. If the underlying engine, doesn't
+        allow to execute operations without transaction, the operation should
+        handle starting and commiting the transaction.</p>
+
+    <h3 id="okvs-range"><code>(okvs-range some start-key start-include? end-key end-include? [CONFIG])</code></h3>
 
     <p>Return a SRFI 158 generator of key-value pairs where keys
         are between <code>START-KEY</code> bytevector and <code>END-KEY</code>
         possibly including the boundaries depending on <code>START-INCLUDE?</code>
         and <code>END-INCLUDE?</code>.  The stream must lexicographically
         ordered. <code>CONFIG</code> is optional.</p>
+
+    <p><code>SOME</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
+        In the case where <code>SOME</code> is an <code>okvs</code> object
+        the implementation should execute the operation, preferably,
+        without starting a transaction. If the underlying engine, doesn't
+        allow to execute operations without transaction, the operation should
+        handle starting and commiting the transaction.</p>
 
     <p><code>CONFIG</code> might contain the following options:</p>
 
@@ -263,13 +298,20 @@
         </tbody>
     </table>
 
-    <h3 id="okvs-prefix"><code>(okvs-prefix transaction prefix [CONFIG])</code></h3>
+    <h3 id="okvs-prefix"><code>(okvs-prefix some prefix [CONFIG])</code></h3>
 
     <p>Return a SRFI 158 generator of key-value pairs where keys
-       starts with <code>PREFIX</code> bytevector.  The stream must
-       lexicographically ordered.  <code>PREFIX</code> can be the empty
-       bytevector, in which case the all the pairs are returned in a
-       generator.</p>
+        starts with <code>PREFIX</code> bytevector.  The stream must
+        lexicographically ordered.  <code>PREFIX</code> can be the empty
+        bytevector, in which case the all the pairs are returned in a
+        generator.</p>
+
+    <p><code>SOME</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
+        In the case where <code>SOME</code> is an <code>okvs</code> object
+        the implementation should execute the operation, preferably,
+        without starting a transaction. If the underlying engine, doesn't
+        allow to execute operations without transaction, the operation should
+        handle starting and commiting the transaction.</p>
 
     <p><code>CONFIG</code> might contain the following options:</p>
     <table>
