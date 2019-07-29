@@ -38,6 +38,7 @@
       <li>Draft #2 published: 2019/4/26</li>
       <li>Draft #3 published: 2019/6/2</li>
       <li>Draft #4 published: 2019/6/11</li>
+      <li>Draft #5 published: 2019/7/XY</li>
     </ul>
 
     <h1>Abstract</h1>
@@ -50,12 +51,11 @@
     <h1>Rationale</h1>
 
     <p>Ordered key-value stores offer a powerful set of simple and
-      elegant primitives to build database abstractions, also
-      sometimes called layers.  The
-      <a href="https://srfi.schemers.org/srfi-168/">generic tuple store SRFI</a>
-      is an example of such abstraction, and others are possible.  A
-      standard interface for such databases will allow more people to
-      experiment with databases in Scheme.</p>
+        elegant primitives to build database abstractions.  The
+        <a href="https://srfi.schemers.org/srfi-168/">SRFI-168: Generic Tuple Store</a>
+        is an example of such abstraction. Others are possible.  A
+        standard interface for such databases will allow more people
+        to experiment with databases in Scheme.</p>
 
     <p>While it has not been Scheme's forte to power databases, the
        recent appearance of several ordered key-value stores make the
@@ -72,8 +72,8 @@
        (the best?) for data durability in Scheme implementations.</p>
 
     <p>This SRFI does not overlap with existing SRFIs and complements
-       <a href="https://srfi.schemers.org/srfi-168/">generic tuple
-       store SRFI</a>.</p>
+        <a href="https://srfi.schemers.org/srfi-168/">SRFI-168: Generic Tuple
+            Store</a>.</p>
 
     <h1>Specification</h1>
     <h2 id="okvs-and-transaction">Okvs and Transaction</h2>
@@ -92,11 +92,11 @@
     <p>In the following, <code>CONFIG</code> is always an optional
         parameter that is an association list.  Some configuration
         options are specified to ease portability.  If an
-        implementation doesn't recognize an option, it must be
-        ignored. Default values are implementation-dependent. It is an
+        implementation doesn't recognize an option, is is an
+        error. Default values are implementation-dependent. It is an
         error if this argument is not an association list.</p>
 
-    <h3 id="okvs"><code>(okvs home [config])</code></h3>
+    <h3 id="okvs-open"><code>(okvs-open home [config])</code></h3>
 
     <p>Return an okvs object.</p>
 
@@ -139,37 +139,35 @@
     <h3 id="okvs-predicate"><code>(okvs? obj)</code></h3>
 
     <p>Return <code>#t</code> if <code>OBJ</code> is a <code>okvs</code>,
-        and <code>#f</code> otherwise.
+        and <code>#f</code> otherwise.</p>
 
-        <h3 id="okvs-close-okvs-config"><code>(okvs-close okvs [config])</code></h3>
+    <h3 id="okvs-close"><code>(okvs-close okvs [config])</code></h3>
 
-        <p>Close <code>OKVS</code>. <code>CONFIG</code> is optional.  In the
-            case where it is provided, it must be an association list. It is
-            implementation dependent.</p>
-
-        <p>No <code>CONFIG</code> options are specified.  An
-            implementation may or may not support some implementation
-            specific options.</p>
-
-    <h3 id="okvs-debug"><code>(okvs-debug okvs proc)</code></h3>
-
-    <p>Call <code>PROC</code> in lexicographic order for all key-value
-        pairs found in <code>OKVS</code>.</p>
-
-    <h3 id="okvs-transaction-begin"><code>(okvs-transaction-begin okvs [config])</code></h3>
-
-    <p>Start a transaction and return a transaction object. The transaction must
-        be associated with a newly created hash-table with the default comparator.</p>
-
-    <p>Every transaction must be commited or rolled back.</p>
+    <p>Close <code>OKVS</code>. <code>CONFIG</code> is optional.  In the
+        case where it is provided, it must be an association list. It is
+        implementation dependent.</p>
 
     <p>No <code>CONFIG</code> options are specified.  An
         implementation may or may not support some implementation
         specific options.</p>
 
-    <h3 id="okvs-transaction-metadata"><code>(okvs-transaction-metadata transaction)</code></h3>
+    <h3 id="okvs-transaction-begin"><code>(okvs-transaction-begin okvs [make-state [config]])</code></h3>
 
-    <p>Return the hash-table associated with <code>TRANSACTION</code>.</p>
+    <p>Start a transaction and return a transaction object. The transaction must
+        be associated with a newly created state object as returned by
+        <code>MAKE-STATE</code>. The default implementation of <code>MAKE-STATE</code>
+        returns a <a>SRFI-125: Intermediate hash tables</a> with comparator returned
+        by the <a>SRFI-128: Comparators</a> procedure <code>(make-default-comparator)</code></p>
+
+    <p>Every transaction must be commit or rolled back.</p>
+
+    <p>No <code>CONFIG</code> options are specified.  An
+        implementation may or may not support some implementation
+        specific options.</p>
+
+    <h3 id="okvs-transaction-state"><code>(okvs-transaction-state transaction)</code></h3>
+
+    <p>Return the state associated with <code>TRANSACTION</code>.</p>
 
     <h3 id="okvs-transaction"><code>(okvs-transaction? obj)</code></h3>
 
@@ -192,7 +190,7 @@
         implementation may or may not support some implementation
         specific options.</p>
 
-    <h3 id="okvs-in-transaction"><code>(okvs-in-transaction okvs proc [failure [success]])</code></h3>
+    <h3 id="okvs-in-transaction"><code>(okvs-in-transaction okvs proc [failure [success [make-state [config]]]])</code></h3>
 
     <p>Start a transaction against <code>OKVS</code> and pass the
         transaction object as argument to <code>PROC</code>. When
@@ -202,39 +200,73 @@
         raises an exception, the transaction is rolled back and <code>FAILURE</code>
         is called with the exception condition. By default <code>FAILURE</code>
         is <code>raise</code> and <code>SUCCESS</code> is <code>identity</code>.
+        <code>MAKE-STATE</code> must return a mutable scheme object as described
+        in <a href="okvs-transaction-begin"><code>okvs-transaction-begin</code></a>.
+        <code>CONFIG</code> is passed as-is to <code>okvs-transaction-begin</code>.
     </p>
 
-    <h3 id="okvs-ref"><code>(okvs-ref transaction key)</code></h3>
+    <h3 id="okvs-ref"><code>(okvs-ref okvs-or-transaction key)</code></h3>
 
     <p>Return the bytevector associated with <code>KEY</code>
-        bytevector using <code>TRANSACTION</code>.  If there is no such
+        bytevector using <code>OKVS-OR-TRANSACTION</code>.  If there is no such
         key, return <code>#f</code>.</p>
 
-    <h3 id="okvs-set"><code>(okvs-set! transaction key value)</code></h3>
+    <p><code>OKVS-OR-TRANSACTION</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
+        In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object
+        the implementation should execute the operation, preferably,
+        without starting a transaction. If the underlying engine, doesn't
+        allow to execute operations without transaction, the operation should
+        handle starting and commiting the transaction.</p>
+
+    <h3 id="okvs-set"><code>(okvs-set! okvs-or-transaction key value)</code></h3>
 
     <p>Associate <code>KEY</code> bytevector with <code>VALUE</code>
-        bytevector using <code>TRANSACTION</code>.</p>
+        bytevector using <code>OKVS-OR-TRANSACTION</code>.</p>
 
-    <h3 id="okvs-delete"><code>(okvs-delete! transaction key)</code></h3>
+    <p><code>OKVS-OR-TRANSACTION</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
+        In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object
+        the implementation should execute the operation, preferably,
+        without starting a transaction. If the underlying engine, doesn't
+        allow to execute operations without transaction, the operation should
+        handle starting and commiting the transaction.</p>
+
+    <h3 id="okvs-delete"><code>(okvs-delete! okvs-or-transaction key)</code></h3>
 
     <p>Delete the pair associated with <code>KEY</code> bytevector
-        using <code>TRANSACTION</code>.</p>
+        using <code>OKVS-OR-TRANSACTION</code>.</p>
 
-    <h3 id="okvs-range-remove"><code>(okvs-range-remove! transaction start-key start-include? end-key end-include?)</code></h3>
+    <p><code>OKVS-OR-TRANSACTION</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
+        In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object
+        the implementation should execute the operation, preferably,
+        without starting a transaction. If the underlying engine, doesn't
+        allow to execute operations without transaction, the operation should
+        handle starting and commiting the transaction.</p>
+
+    <h3 id="okvs-range-remove"><code>(okvs-range-remove! okvs-or-transaction start-key start-include? end-key end-include?)</code></h3>
 
     <p>Remove all pairs in the specified range.</p>
 
-    <h3 id="okvs-maximum-key"><code>(okvs-maximum-key okvs)</code></h3>
+    <p><code>OKVS-OR-TRANSACTION</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
+        In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object
+        the implementation should execute the operation, preferably,
+        without starting a transaction. If the underlying engine, doesn't
+        allow to execute operations without transaction, the operation should
+        handle starting and commiting the transaction.</p>
 
-    <p>Returns the largest possible key. It is an error to mutate this key.</p>
-
-    <h3 id="okvs-range"><code>(okvs-range transaction start-key start-include? end-key end-include? [CONFIG])</code></h3>
+    <h3 id="okvs-range"><code>(okvs-range okvs-or-transaction start-key start-include? end-key end-include? [CONFIG])</code></h3>
 
     <p>Return a SRFI 158 generator of key-value pairs where keys
         are between <code>START-KEY</code> bytevector and <code>END-KEY</code>
         possibly including the boundaries depending on <code>START-INCLUDE?</code>
         and <code>END-INCLUDE?</code>.  The stream must lexicographically
         ordered. <code>CONFIG</code> is optional.</p>
+
+    <p><code>OKVS-OR-TRANSACTION</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
+        In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object
+        the implementation should execute the operation, preferably,
+        without starting a transaction. If the underlying engine, doesn't
+        allow to execute operations without transaction, the operation should
+        handle starting and commiting the transaction.</p>
 
     <p><code>CONFIG</code> might contain the following options:</p>
 
@@ -263,13 +295,20 @@
         </tbody>
     </table>
 
-    <h3 id="okvs-prefix"><code>(okvs-prefix transaction prefix [CONFIG])</code></h3>
+    <h3 id="okvs-prefix-range"><code>(okvs-prefix-range okvs-or-transaction prefix [CONFIG])</code></h3>
 
     <p>Return a SRFI 158 generator of key-value pairs where keys
-       starts with <code>PREFIX</code> bytevector.  The stream must
-       lexicographically ordered.  <code>PREFIX</code> can be the empty
-       bytevector, in which case the all the pairs are returned in a
-       generator.</p>
+        starts with <code>PREFIX</code> bytevector.  The stream must
+        lexicographically ordered.  <code>PREFIX</code> can be the empty
+        bytevector, in which case the all the pairs are returned in a
+        generator.</p>
+
+    <p><code>OKVS-OR-TRANSACTION</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
+        In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object
+        the implementation should execute the operation, preferably,
+        without starting a transaction. If the underlying engine, doesn't
+        allow to execute operations without transaction, the operation should
+        handle starting and commiting the transaction.</p>
 
     <p><code>CONFIG</code> might contain the following options:</p>
     <table>
