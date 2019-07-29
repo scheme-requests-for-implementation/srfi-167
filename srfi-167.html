@@ -52,7 +52,7 @@
 
     <p>Ordered key-value stores offer a powerful set of simple and
         elegant primitives to build database abstractions.  The
-        <a href="https://srfi.schemers.org/srfi-168/">SRFI-168: Generic Tuple Store</a>
+        <a href="https://srfi.schemers.org/srfi-168/">SRFI 168: Generic Tuple Store</a>
         is an example of such abstraction. Others are possible.  A
         standard interface for such databases will allow more people
         to experiment with databases in Scheme.</p>
@@ -72,7 +72,7 @@
        (the best?) for data durability in Scheme implementations.</p>
 
     <p>This SRFI does not overlap with existing SRFIs and complements
-        <a href="https://srfi.schemers.org/srfi-168/">SRFI-168: Generic Tuple
+        <a href="https://srfi.schemers.org/srfi-168/">SRFI 168: Generic Tuple
             Store</a>.</p>
 
     <h1>Specification</h1>
@@ -92,8 +92,8 @@
     <p>In the following, <code>CONFIG</code> is always an optional
         parameter that is an association list.  Some configuration
         options are specified to ease portability.  If an
-        implementation doesn't recognize an option, is is an
-        error. Default values are implementation-dependent. It is an
+        implementation doesn't recognize an option, it is an
+        error. Default values are implementation dependent. It is an
         error if this argument is not an association list.</p>
 
     <h3 id="okvs-open"><code>(okvs-open home [config])</code></h3>
@@ -156,10 +156,10 @@
     <p>Start a transaction and return a transaction object. The transaction must
         be associated with a newly created state object as returned by
         <code>MAKE-STATE</code>. The default implementation of <code>MAKE-STATE</code>
-        returns a <a>SRFI-125: Intermediate hash tables</a> with comparator returned
-        by the <a>SRFI-128: Comparators</a> procedure <code>(make-default-comparator)</code></p>
+        returns a <a>SRFI 125: Intermediate hash table</a> with a comparator returned
+        by the <a>SRFI 128: Comparators</a> procedure <code>(make-default-comparator)</code>.</p>
 
-    <p>Every transaction must be commit or rolled back.</p>
+    <p>Every transaction must be committed or rolled back.</p>
 
     <p>No <code>CONFIG</code> options are specified.  An
         implementation may or may not support some implementation
@@ -214,9 +214,9 @@
     <p><code>OKVS-OR-TRANSACTION</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
         In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object
         the implementation should execute the operation, preferably,
-        without starting a transaction. If the underlying engine, doesn't
-        allow to execute operations without transaction, the operation should
-        handle starting and commiting the transaction.</p>
+        without starting a transaction. If the underlying engine doesn't
+        allow one to execute operations without a transaction, the operation should
+        handle starting and committing the transaction.</p>
 
     <h3 id="okvs-set"><code>(okvs-set! okvs-or-transaction key value)</code></h3>
 
@@ -226,9 +226,9 @@
     <p><code>OKVS-OR-TRANSACTION</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
         In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object
         the implementation should execute the operation, preferably,
-        without starting a transaction. If the underlying engine, doesn't
-        allow to execute operations without transaction, the operation should
-        handle starting and commiting the transaction.</p>
+        without starting a transaction. If the underlying engine doesn't
+        allow one to execute operations without a transaction, the operation should
+        handle starting and committing the transaction.</p>
 
     <h3 id="okvs-delete"><code>(okvs-delete! okvs-or-transaction key)</code></h3>
 
@@ -238,9 +238,9 @@
     <p><code>OKVS-OR-TRANSACTION</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
         In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object
         the implementation should execute the operation, preferably,
-        without starting a transaction. If the underlying engine, doesn't
-        allow to execute operations without transaction, the operation should
-        handle starting and commiting the transaction.</p>
+        without starting a transaction. If the underlying engine doesn't
+        allow one to execute operations without a transaction, the operation should
+        handle starting and committing the transaction.</p>
 
     <h3 id="okvs-range-remove"><code>(okvs-range-remove! okvs-or-transaction start-key start-include? end-key end-include?)</code></h3>
 
@@ -249,9 +249,9 @@
     <p><code>OKVS-OR-TRANSACTION</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
         In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object
         the implementation should execute the operation, preferably,
-        without starting a transaction. If the underlying engine, doesn't
-        allow to execute operations without transaction, the operation should
-        handle starting and commiting the transaction.</p>
+        without starting a transaction. If the underlying engine doesn't
+        allow one to execute operations without a transaction, the operation should
+        handle starting and committing the transaction.</p>
 
     <h3 id="okvs-range"><code>(okvs-range okvs-or-transaction start-key start-include? end-key end-include? [CONFIG])</code></h3>
 
@@ -264,9 +264,9 @@
     <p><code>OKVS-OR-TRANSACTION</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
         In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object
         the implementation should execute the operation, preferably,
-        without starting a transaction. If the underlying engine, doesn't
-        allow to execute operations without transaction, the operation should
-        handle starting and commiting the transaction.</p>
+        without starting a transaction. If the underlying engine doesn't
+        allow one to execute operations without a transaction, the operation should
+        handle starting and committing the transaction.</p>
 
     <p><code>CONFIG</code> might contain the following options:</p>
 
@@ -306,9 +306,9 @@
     <p><code>OKVS-OR-TRANSACTION</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
         In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object
         the implementation should execute the operation, preferably,
-        without starting a transaction. If the underlying engine, doesn't
-        allow to execute operations without transaction, the operation should
-        handle starting and commiting the transaction.</p>
+        without starting a transaction. If the underlying engine doesn't
+        allow one to execute operations without a transaction, the operation should
+        handle starting and committing the transaction.</p>
 
     <p><code>CONFIG</code> might contain the following options:</p>
     <table>
@@ -340,7 +340,7 @@
 
     <p>The <a href="https://srfi.schemers.org/srfi-167/srfi-167.tgz">sample
       implementation</a> relies on scheme mappings (SRFI 146) and
-      SRFI-158 generators.</p>
+      generators (SRFI 158).</p>
 
     <h1>Acknowledgements</h1>
 
