@@ -151,44 +151,17 @@
         implementation may or may not support some implementation
         specific options.</p>
 
-    <h3 id="okvs-transaction-begin"><code>(okvs-transaction-begin okvs [make-state [config]])</code></h3>
-
-    <p>Start a transaction and return a transaction object. The transaction must
-        be associated with a newly created state object as returned by
-        <code>MAKE-STATE</code>. The default implementation of <code>MAKE-STATE</code>
-        returns a <a>SRFI 125: Intermediate hash table</a> with a comparator returned
-        by the <a>SRFI 128: Comparators</a> procedure <code>(make-default-comparator)</code>.</p>
-
-    <p>Every transaction must be committed or rolled back.</p>
-
-    <p>No <code>CONFIG</code> options are specified.  An
-        implementation may or may not support some implementation
-        specific options.</p>
-
     <h3 id="okvs-transaction-state"><code>(okvs-transaction-state transaction)</code></h3>
 
-    <p>Return the state associated with <code>TRANSACTION</code>.</p>
+    <p>Return the state associated with <code>TRANSACTION</code>. See
+        <code>okvs-in-transaction</code> for a description of what is
+        the transaction state.
+    </p>
 
     <h3 id="okvs-transaction"><code>(okvs-transaction? obj)</code></h3>
 
     <p>Return <code>#t</code> if <code>OBJ</code> is a <code>okvs</code> transaction,
         and <code>#f</code> otherwise.
-
-    <h3 id="okvs-transaction-commit"><code>(okvs-transaction-commit transaction config)</code></h3>
-
-    <p>Commit <code>TRANSACTION</code>.</p>
-
-    <p>No <code>CONFIG</code> options are specified.  An
-        implementation may or may not support some implementation
-        specific options.</p>
-
-    <h3 id="okvs-transaction-roll-back"><code>(okvs-transaction-roll-back transaction [config])</code></h3>
-
-    <p>Roll back <code>TRANSACTION</code>.</p>
-
-    <p>No <code>CONFIG</code> options are specified.  An
-        implementation may or may not support some implementation
-        specific options.</p>
 
     <h3 id="okvs-in-transaction"><code>(okvs-in-transaction okvs proc [failure [success [make-state [config]]]])</code></h3>
 
@@ -200,10 +173,17 @@
         raises an exception, the transaction is rolled back and <code>FAILURE</code>
         is called with the exception condition. By default <code>FAILURE</code>
         is <code>raise</code> and <code>SUCCESS</code> is <code>identity</code>.
-        <code>MAKE-STATE</code> must return a mutable scheme object as described
-        in <a href="okvs-transaction-begin"><code>okvs-transaction-begin</code></a>.
-        <code>CONFIG</code> is passed as-is to <code>okvs-transaction-begin</code>.
+        The transaction must be associated with a newly created state
+        object as returned by <code>MAKE-STATE</code>. The default implementation
+        of <code>MAKE-STATE</code> returns a <a>SRFI 125: Intermediate hash table</a>
+        with a comparator returned by the <a>SRFI 128: Comparators</a> procedure
+        <code>(make-default-comparator)</code>. The transaction state can be
+        retrieved during the transaction using <code>transaction-state</code>.
     </p>
+x
+    <p>No <code>CONFIG</code> options are specified.  An
+        implementation may or may not support some implementation
+        specific options.</p>
 
     <h3 id="okvs-ref"><code>(okvs-ref okvs-or-transaction key)</code></h3>
 
