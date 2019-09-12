@@ -318,15 +318,16 @@ x
 
     <h3 id="hooks">Hooks</h3>
 
-    <p>Hooks are procedures that are executed at specific time during
-        the life of an okvs. They allow to sneak into transaction life
+    <p><a href="https://srfi.schemers.org/srfi-173/">SRFI-173</a> hooks
+        are procedures that are executed at specific time during the
+        life of an okvs. They allow to sneak into transaction life
         cycles to validate mutations, keep indices synchronized or
         other operations.</p>
 
     <h4 id="okvs-hook-on-transaction-begin"><code>(okvs-hook-on-transaction-begin okvs)</code></h4>
 
     <p>This procedure return the hook object associated with the start
-        of the transaction</p>
+        of a transaction</p>
 
     <p>The hook is run after the transaction is started inside
         <code>okvs-in-transaction</code>. It takes the transaction
