@@ -162,6 +162,17 @@
 
     <p>Return <code>#t</code> if <code>OBJ</code> is a <code>okvs</code> transaction,
         and <code>#f</code> otherwise.
+    </p>
+
+    <h3 id="make-default-state"><code>(make-default-state)</code></h3>
+
+    <p>Return a <a href="https://srfi.schemers.org/srfi-125/">SRFI
+        125: Intermediate hash table</a>
+        with a comparator returned by the
+        <a href="https://srfi.schemers.org/srfi-128/srfi-128.html#Defaultcomparators">SRFI
+        128: Comparators</a> procedure
+        <code>(make-default-comparator)</code>.
+    </p>
 
     <h3 id="okvs-in-transaction"><code>(okvs-in-transaction okvs proc [failure [success [make-state [config]]]])</code></h3>
 
@@ -174,11 +185,10 @@
         is called with the exception condition. By default <code>FAILURE</code>
         is <code>raise</code> and <code>SUCCESS</code> is <code>identity</code>.
         The transaction must be associated with a newly created state
-        object as returned by <code>MAKE-STATE</code>. The default implementation
-        of <code>MAKE-STATE</code> returns a <a>SRFI 125: Intermediate hash table</a>
-        with a comparator returned by the <a>SRFI 128: Comparators</a> procedure
-        <code>(make-default-comparator)</code>. The transaction state can be
-        retrieved during the transaction using <code>transaction-state</code>.
+        object as returned by <code>MAKE-STATE</code>. The default value
+        of <code>MAKE-STATE</code> is <code>make-default-state</code>. The
+        transaction state can be retrieved during the transaction
+        using the procedure <code>transaction-state</code>.
     </p>
 
     <p>No <code>CONFIG</code> options are specified.  An
