@@ -126,11 +126,16 @@
       (state okvs-transaction-state))
 
     (define (okvs-transaction-begin database make-state . args)
-      (make-okvs-transaction database
-                             (okvs-store database)
-                             (make-state)))
+      (let ((transaction (make-okvs-transaction database
+                                                (okvs-store database)
+                                                (make-state))))
+        (hook-run (okvs-hook-on-transaction-begin database) transaction)
+        transaction))
 
     (define (okvs-transaction-commit transaction . args)
+      (hook-run (okvs-hook-on-transaction-commit
+                 (okvs-transaction-database transaction))
+                transaction)
       (okvs-store! (okvs-transaction-database transaction)
                    (okvs-transaction-store transaction)))
 
