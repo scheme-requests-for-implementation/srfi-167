@@ -77,14 +77,14 @@
 
     <h1>Specification</h1>
 
-    <p>The SRFI is composed of two library modules the first is the
+    <p>The SRFI is composed of two library modules.  The first is the
         <code>engine</code> library and the second is the
         <code>okvs</code> library.</p>
 
     <h2 id="engine"><code>engine</code></h2>
 
     <p>To allow the user of an <code>okvs</code> abstraction (also
-        known as layer) to easily swap implementation, it must be
+        known as layer) to easily swap implementations, it must be
         written in terms of the procedures specified in this section</p>
 
     <p>The <code>engine</code> is a simple record of <code>okvs</code>
@@ -102,15 +102,15 @@
     <h3 id="engine-predicate"><code>(engine? obj)</code></h3>
 
     <p>Return <code>#t</code> if <code>OBJ</code> is an engine record
-        instance. Otherwise, it return <code>#f</code></p>
+        instance. Otherwise, it returns <code>#f</code></p>
 
     <h3 id="engine-ref"><code>(engine-ref engine)</code></h3>
 
-    <p>Return the procedure <code>okvs-ref</code></p>
+    <p>Return the procedure <code>okvs-ref</code>.</p>
 
     <h3 id="engine-set"><code>(engine-set engine)</code></h3>
 
-    <p>Return the procedure <code>okvs-set!</code></p>
+    <p>Return the procedure <code>okvs-set!</code>.</p>
 
     <h3 id="engine-delete"><code>(engine-delete engine)</code></h3>
 
@@ -122,30 +122,30 @@
 
     <h3 id="engine-range"><code>(engine-range engine)</code></h3>
 
-    <p>Return the procedure <code>okvs-range</code></p>
+    <p>Return the procedure <code>okvs-range</code>.</p>
 
     <h3 id="engine-range-prefix"><code>(engine-range-prefix engine)</code></h3>
 
-    <p>Return the procedure <code>okvs-range-prefix</code></p>
+    <p>Return the procedure <code>okvs-range-prefix</code>.</p>
 
     <h3 id="engine-hook-on-transaction-begin"><code>(engine-hook-on-transaction-begin engine)</code></h3>
 
-    <p>Return the procedure <code>okvs-hook-on-transaction-begin</code></p>
+    <p>Return the procedure <code>okvs-hook-on-transaction-begin</code>.</p>
 
     <h3 id="engine-hook-on-transaction-commit"><code>(engine-hook-on-transaction-commit engine)</code></h3>
 
-    <p>Return the procedure <code>okvs-hook-on-transaction-commit</code></p>
+    <p>Return the procedure <code>okvs-hook-on-transaction-commit</code>.</p>
 
     <h3 id="engine-pack"><code>(engine-pack engine)</code></h3>
 
     <p>Return a packing procedure that allows to encode some scheme types
         into bytevectors preserving their natural order. The supported Scheme
-        types is implementation dependant.</p>
+        types is implementation dependent.</p>
 
     <h3 id="engine-unpack"><code>(engine-unpack engine)</code></h3>
 
-    <p>Return a unpacking procedure that will decode a bytevector
-        encoded with the above pack procedure into a Scheme object</p>
+    <p>Return an unpacking procedure that will decode a bytevector
+        encoded with the above pack procedure into a Scheme object.</p>
 
     <h2 id="okvs-and-transaction"><code>okvs</code>Okvs and Transaction</h2>
 
@@ -249,7 +249,7 @@
 
     <p>Start a transaction against <code>OKVS</code> and pass the
         transaction object as argument to <code>PROC</code>. When
-        <code>PROC</code> returns, the transaction is commited and
+        <code>PROC</code> returns, the transaction is committed and
         <code>okvs-in-transaction</code> applies whatever <code>PROC</code>
         returned to the <code>SUCCESS</code> procedure. If <code>PROC</code>
         raises an exception, the transaction is rolled back and <code>FAILURE</code>
@@ -400,15 +400,15 @@
     <h3 id="hooks">Hooks</h3>
 
     <p><a href="https://srfi.schemers.org/srfi-173/">SRFI-173</a> hooks
-        are procedures that are executed at specific time during the
-        life of an okvs. They allow to sneak into transaction life
-        cycles to validate mutations, keep indices synchronized or
-        other operations.</p>
+        are procedures that are executed at specific times during the
+        life of an okvs. They allow one to sneak into transaction life
+        cycles to validate mutations, keep indices synchronized, or
+        carry out other operations.</p>
 
     <h4 id="okvs-hook-on-transaction-begin"><code>(okvs-hook-on-transaction-begin okvs)</code></h4>
 
-    <p>This procedure return the hook object associated with the start
-        of a transaction</p>
+    <p>This procedure returns the hook object associated with the start
+        of a transaction.</p>
 
     <p>The hook is run after the transaction is started inside
         <code>okvs-in-transaction</code>. It takes the transaction
@@ -416,10 +416,10 @@
 
     <h4 id="okvs-hook-on-transaction-commit"><code>(okvs-hook-on-transaction-commit okvs)</code></h4>
 
-    <p>This procedure return the hook object associated with the
-        commit of a transaction</p>
+    <p>This procedure returns the hook object associated with the
+        commit of a transaction.</p>
 
-    <p>The hook is run before the transaction is commited inside
+    <p>The hook is run before the transaction is committed inside
         <code>okvs-in-transaction</code>. It takes the transaction
         object as first and only argument.</p>
 
