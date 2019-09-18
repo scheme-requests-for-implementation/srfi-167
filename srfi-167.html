@@ -76,7 +76,73 @@
             Store</a>.</p>
 
     <h1>Specification</h1>
-    <h2 id="okvs-and-transaction">Okvs and Transaction</h2>
+
+    <p>The SRFI is composed of two library modules the first is the
+        <code>engine</code> library and the second is the
+        <code>okvs</code> library.</p>
+
+    <h2 id="engine"><code>engine</code></h2>
+
+    <p>To allow the user of an <code>okvs</code> abstraction (also
+        known as layer) to easily swap implementation, it must be
+        written in terms of the procedures specified in this section</p>
+
+    <p>The <code>engine</code> is a simple record of <code>okvs</code>
+        procedures that must be passed to the constructor of layers. It must
+        be shared between <code>okvs</code> implementations.</p>
+
+    <p>The <code>okvs</code> library must contain an instance of the
+        <code>engine</code> record exported as <code>engine</code>
+        that is bound to the procedures that it defines.</p>
+
+    <h3 id="make-engine"><code>(make-engine ref set delete range-remove range prefix-range hook-on-transaction-begin hook-on-transaction-commit pack unpack)</code></h3>
+
+    <p>Return an <code>engine</code> record instance.</p>
+
+    <h3 id="engine-ref"><code>(engine-ref engine)</code></h3>
+
+    <p>Return the procedure <code>okvs-ref</code></p>
+
+    <h3 id="engine-set"><code>(engine-set engine)</code></h3>
+
+    <p>Return the procedure <code>okvs-set!</code></p>
+
+    <h3 id="engine-delete"><code>(engine-delete engine)</code></h3>
+
+    <p>Return the procedure <code>okvs-delete!</code></p>
+
+    <h3 id="engine-range-remove"><code>(engine-range-remove engine)</code></h3>
+
+    <p>Return the procedure <code>okvs-range-remove!</code></p>
+
+    <h3 id="engine-range"><code>(engine-range engine)</code></h3>
+
+    <p>Return the procedure <code>okvs-range</code></p>
+
+    <h3 id="engine-range-prefix"><code>(engine-range-prefix engine)</code></h3>
+
+    <p>Return the procedure <code>okvs-range-prefix</code></p>
+
+    <h3 id="engine-hook-on-transaction-begin"><code>(engine-hook-on-transaction-begin engine)</code></h3>
+
+    <p>Return the procedure <code>okvs-hook-on-transaction-begin</code></p>
+
+    <h3 id="engine-hook-on-transaction-commit"><code>(engine-hook-on-transaction-commit engine)</code></h3>
+
+    <p>Return the procedure <code>okvs-hook-on-transaction-commit</code></p>
+
+    <h3 id="engine-pack"><code>(engine-pack engine)</code></h3>
+
+    <p>Return a packing procedure that allows to encode some scheme types
+        into bytevectors preserving their natural order. The supported Scheme
+        types is implementation dependant.</p>
+
+    <h3 id="engine-unpack"><code>(engine-unpack engine)</code></h3>
+
+    <p>Return a unpacking procedure that will decode a bytevector
+        encoded with the above pack procedure into a Scheme object</p>
+
+    <h2 id="okvs-and-transaction"><code>okvs</code>Okvs and Transaction</h2>
 
     <p>A okvs is a mapping that may or may not support
       transactions.  Keys are lexicographically ordered bytevectors.
