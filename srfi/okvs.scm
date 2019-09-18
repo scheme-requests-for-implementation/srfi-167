@@ -22,23 +22,23 @@
 ;;; OTHER DEALINGS IN THE SOFTWARE.
 (define-library (okvs)
 
-  (export okvs
+  (export okvs-open
           okvs?
           okvs-close
-          okvs-transaction-begin
-          okvs-transaction-metadata
+          okvs-transaction-state
           okvs-transaction?
-          okvs-transaction-commit
-          okvs-transaction-roll-back
           okvs-in-transaction
           okvs-ref
           okvs-set!
           okvs-delete!
           okvs-range-remove!
           okvs-range
-          okvs-prefix)
+          okvs-prefix-range
+          okvs-hook-on-transaction-begin
+          okvs-hook-on-transaction-commit)
 
   (import (only (chezscheme) void))
+
   (import (scheme base))
   (import (scheme case-lambda))
   (import (scheme list))
@@ -51,86 +51,29 @@
   (import (scheme generator))
   (import (scheme mapping))
 
+  (import (hook))
+
   (begin
 
-    (define-record-type <memorydb>
-      (make-memorydb store)
+    ;;
+    ;; This a memory based okvs implementation backed by the r7rs
+    ;; library (scheme mapping). Roll-back operation is supported.
+    ;;
+    ;; This requires arew scheme:
+    ;;
+    ;;  https://git.sr.ht/~amz3/chez-scheme-arew
+    ;;
+    ;; It will be easier to test from 'around' repository:
+    ;;
+    ;;  https://github.com/scheme-live/around-ordered-key-value-stores/
+    ;;
+
+    (define-record-type <okvs>
+      (make-okvs store hook-on-transaction-begin hook-on-transaction-commit)
       okvs?
-      (store memorydb-store memorydb-store!))
-
-    (define (lexicographic<? bytevector other)
-      (negative? (lexicographic-compare bytevector other)))
-
-    (define vector-hash
-      (comparator-hash-function
-       (make-vector-comparator (make-default-comparator)
-                               bytevector?
-                               bytevector-length
-                               bytevector-u8-ref)))
-
-    (define (make-lexicographic-comparator)
-      (make-comparator bytevector? bytevector=? lexicographic<? vector-hash))
-
-    (define (okvs home . args)
-      (make-memorydb (mapping (make-lexicographic-comparator))))
-
-    (define (okvs-close . args)
-      (void))
-
-    (define (okvs-debug okvs proc)
-      (mapping-for-each (memorydb-store okvs) proc))
-
-    (define-record-type <transaction>
-      (make-transaction database store metadata)
-      okvs-transaction?
-      (database transaction-database transaction-database!)
-      (store transaction-store transaction-store!)
-      (metadata okvs-transaction-metadata))
-
-    (define (okvs-transaction-begin database . args)
-      (make-transaction database
-                        (memorydb-store database)
-                        (make-hash-table (make-default-comparator))))
-
-    (define (okvs-transaction-commit transaction . args)
-      (memorydb-store! (transaction-database transaction) (transaction-store transaction)))
-
-    (define (okvs-transaction-roll-back transaction . args)
-      (void))
-
-    (define (%okvs-in-transaction okvs proc failure success)
-      (let ((transaction (okvs-transaction-begin okvs)))
-        (guard (ex
-                (else
-                 (okvs-transaction-roll-back transaction)
-                 (failure ex)))
-          (call-with-values (lambda () (proc transaction))
-              (lambda out
-                (okvs-transaction-commit transaction)
-                (apply success out))))))
-
-    (define okvs-in-transaction
-      (case-lambda
-        ((okvs proc) (okvs-in-transaction okvs proc raise values))
-        ((okvs proc failure) (okvs-in-transaction okvs proc failure values))
-        ((okvs proc failure success) (%okvs-in-transaction okvs proc failure success))))
-
-    (define (okvs-ref transaction key)
-      (mapping-ref/default (transaction-store transaction) key #f))
-
-    (define (okvs-set! transaction key value)
-      (transaction-store! transaction (mapping-set (transaction-store transaction) key value)))
-
-    (define (okvs-delete! transaction key)
-      (transaction-store! transaction (mapping-delete (transaction-store transaction) key)))
-
-    (define (okvs-range-remove! transaction start-key start-include? end-key end-include?)
-      (let ((generator (okvs-range transaction start-key start-include? end-key end-include?)))
-        (let loop ((pair (generator)))
-          (unless (eof-object? pair)
-            (let ((key (car pair)))
-              (okvs-delete! transaction key)
-              (loop (generator)))))))
+      (store okvs-store okvs-store!)
+      (hook-on-transaction-begin okvs-hook-on-transaction-begin)
+      (hook-on-transaction-commit okvs-hook-on-transaction-commit))
 
     (define (lexicographic-compare bytevector other)
       ;; Return -1 if BYTEVECTOR is before OTHER, 0 if equal
@@ -154,14 +97,102 @@
                         -1
                         1)))))))
 
+    (define (lexicographic<? bytevector other)
+      (negative? (lexicographic-compare bytevector other)))
+
+    (define vector-hash
+      (comparator-hash-function
+       (make-vector-comparator (make-default-comparator)
+                               bytevector?
+                               bytevector-length
+                               bytevector-u8-ref)))
+
+    (define (make-lexicographic-comparator)
+      (make-comparator bytevector? bytevector=? lexicographic<? vector-hash))
+
+    (define (okvs-open home . args)
+      (make-okvs (mapping (make-lexicographic-comparator))
+                 (make-hook 1)
+                 (make-hook 1)))
+
+    (define (okvs-close . args)
+      (void))
+
+    (define-record-type <okvs-transaction>
+      (make-okvs-transaction database store state)
+      okvs-transaction?
+      (database okvs-transaction-database okvs-transaction-database!)
+      (store okvs-transaction-store okvs-transaction-store!)
+      (state okvs-transaction-state))
+
+    (define (okvs-transaction-begin database make-state . args)
+      (let ((transaction (make-okvs-transaction database
+                                                (okvs-store database)
+                                                (make-state))))
+        (hook-run (okvs-hook-on-transaction-begin database) transaction)
+        transaction))
+
+    (define (okvs-transaction-commit transaction . args)
+      (hook-run (okvs-hook-on-transaction-commit
+                 (okvs-transaction-database transaction))
+                transaction)
+      (okvs-store! (okvs-transaction-database transaction)
+                   (okvs-transaction-store transaction)))
+
+    (define (okvs-transaction-roll-back transaction . args)
+      (void))
+
+    (define (%okvs-in-transaction okvs proc failure success make-state config)
+      (let ((transaction (okvs-transaction-begin okvs make-state config)))
+        (guard (ex
+                (else
+                 (okvs-transaction-roll-back transaction)
+                 (failure ex)))
+          (call-with-values (lambda () (proc transaction))
+              (lambda out
+                (okvs-transaction-commit transaction)
+                (apply success out))))))
+
+    (define (make-default-state)
+      (make-hash-table (make-default-comparator)))
+
+    (define okvs-in-transaction
+      (case-lambda
+        ((okvs proc) (okvs-in-transaction okvs proc raise values make-default-state '()))
+        ((okvs proc failure)
+         (okvs-in-transaction okvs proc failure values make-default-state '()))
+        ((okvs proc failure success)
+         (%okvs-in-transaction okvs proc failure success make-default-state '()))
+        ((okvs proc failure success make-state)
+         (%okvs-in-transaction okvs proc failure success make-state '()))
+        ((okvs proc failure success make-state config)
+         (%okvs-in-transaction okvs proc failure success make-state config))))
+
+    (define (okvs-ref okvs-or-transaction key)
+      (mapping-ref/default (okvs-transaction-store okvs-or-transaction) key #f))
+
+    (define (okvs-set! okvs-or-transaction key value)
+      (okvs-transaction-store! okvs-or-transaction (mapping-set (okvs-transaction-store okvs-or-transaction) key value)))
+
+    (define (okvs-delete! okvs-or-transaction key)
+      (okvs-transaction-store! okvs-or-transaction (mapping-delete (okvs-transaction-store okvs-or-transaction) key)))
+
+    (define (okvs-range-remove! okvs-or-transaction start-key start-include? end-key end-include?)
+      (let ((generator (okvs-range okvs-or-transaction start-key start-include? end-key end-include?)))
+        (let loop ((pair (generator)))
+          (unless (eof-object? pair)
+            (let ((key (car pair)))
+              (okvs-delete! okvs-or-transaction key)
+              (loop (generator)))))))
+
     (define (okvs-range-init store key)
       (let ((value (mapping-ref/default store key #f)))
         (if value
             (list (cons key value))
             '())))
 
-    (define (okvs-range transaction start-key start-include? end-key end-include? . args)
-      (let* ((store (transaction-store transaction)))
+    (define (okvs-range okvs-or-transaction start-key start-include? end-key end-include? . args)
+      (let* ((store (okvs-transaction-store okvs-or-transaction)))
         (let loop ((key (mapping-key-successor store start-key (const #f)))
                    (out (if start-include?
                             (okvs-range-init store start-key)
@@ -192,8 +223,7 @@
         ;; increment first byte, reverse and return the bytevector
         (u8-list->bytevector (reverse! (cons (+ 1 (car bytes)) (cdr bytes))))))
 
-    (define (okvs-prefix transaction prefix . config)
-      (apply okvs-range transaction prefix #t (strinc prefix) #f config))
-
+    (define (okvs-prefix-range okvs-or-transaction prefix . config)
+      (apply okvs-range okvs-or-transaction prefix #t (strinc prefix) #f config))
 
     ))

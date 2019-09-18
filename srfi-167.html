@@ -76,7 +76,78 @@
             Store</a>.</p>
 
     <h1>Specification</h1>
-    <h2 id="okvs-and-transaction">Okvs and Transaction</h2>
+
+    <p>The SRFI is composed of two library modules the first is the
+        <code>engine</code> library and the second is the
+        <code>okvs</code> library.</p>
+
+    <h2 id="engine"><code>engine</code></h2>
+
+    <p>To allow the user of an <code>okvs</code> abstraction (also
+        known as layer) to easily swap implementation, it must be
+        written in terms of the procedures specified in this section</p>
+
+    <p>The <code>engine</code> is a simple record of <code>okvs</code>
+        procedures that must be passed to the constructor of layers. It must
+        be shared between <code>okvs</code> implementations.</p>
+
+    <p>The <code>okvs</code> library must contain an instance of the
+        <code>engine</code> record exported as <code>engine</code>
+        that is bound to the procedures that it defines.</p>
+
+    <h3 id="make-engine"><code>(make-engine ref set delete range-remove range prefix-range hook-on-transaction-begin hook-on-transaction-commit pack unpack)</code></h3>
+
+    <p>Return an <code>engine</code> record instance.</p>
+
+    <h3 id="engine-predicate"><code>(engine? obj)</code></h3>
+
+    <p>Return <code>#t</code> if <code>OBJ</code> is an engine record
+        instance. Otherwise, it return <code>#f</code></p>
+
+    <h3 id="engine-ref"><code>(engine-ref engine)</code></h3>
+
+    <p>Return the procedure <code>okvs-ref</code></p>
+
+    <h3 id="engine-set"><code>(engine-set engine)</code></h3>
+
+    <p>Return the procedure <code>okvs-set!</code></p>
+
+    <h3 id="engine-delete"><code>(engine-delete engine)</code></h3>
+
+    <p>Return the procedure <code>okvs-delete!</code></p>
+
+    <h3 id="engine-range-remove"><code>(engine-range-remove engine)</code></h3>
+
+    <p>Return the procedure <code>okvs-range-remove!</code></p>
+
+    <h3 id="engine-range"><code>(engine-range engine)</code></h3>
+
+    <p>Return the procedure <code>okvs-range</code></p>
+
+    <h3 id="engine-range-prefix"><code>(engine-range-prefix engine)</code></h3>
+
+    <p>Return the procedure <code>okvs-range-prefix</code></p>
+
+    <h3 id="engine-hook-on-transaction-begin"><code>(engine-hook-on-transaction-begin engine)</code></h3>
+
+    <p>Return the procedure <code>okvs-hook-on-transaction-begin</code></p>
+
+    <h3 id="engine-hook-on-transaction-commit"><code>(engine-hook-on-transaction-commit engine)</code></h3>
+
+    <p>Return the procedure <code>okvs-hook-on-transaction-commit</code></p>
+
+    <h3 id="engine-pack"><code>(engine-pack engine)</code></h3>
+
+    <p>Return a packing procedure that allows to encode some scheme types
+        into bytevectors preserving their natural order. The supported Scheme
+        types is implementation dependant.</p>
+
+    <h3 id="engine-unpack"><code>(engine-unpack engine)</code></h3>
+
+    <p>Return a unpacking procedure that will decode a bytevector
+        encoded with the above pack procedure into a Scheme object</p>
+
+    <h2 id="okvs-and-transaction"><code>okvs</code>Okvs and Transaction</h2>
 
     <p>A okvs is a mapping that may or may not support
       transactions.  Keys are lexicographically ordered bytevectors.
@@ -151,44 +222,28 @@
         implementation may or may not support some implementation
         specific options.</p>
 
-    <h3 id="okvs-transaction-begin"><code>(okvs-transaction-begin okvs [make-state [config]])</code></h3>
-
-    <p>Start a transaction and return a transaction object. The transaction must
-        be associated with a newly created state object as returned by
-        <code>MAKE-STATE</code>. The default implementation of <code>MAKE-STATE</code>
-        returns a <a>SRFI 125: Intermediate hash table</a> with a comparator returned
-        by the <a>SRFI 128: Comparators</a> procedure <code>(make-default-comparator)</code>.</p>
-
-    <p>Every transaction must be committed or rolled back.</p>
-
-    <p>No <code>CONFIG</code> options are specified.  An
-        implementation may or may not support some implementation
-        specific options.</p>
-
     <h3 id="okvs-transaction-state"><code>(okvs-transaction-state transaction)</code></h3>
 
-    <p>Return the state associated with <code>TRANSACTION</code>.</p>
+    <p>Return the state associated with <code>TRANSACTION</code>. See
+        <code>okvs-in-transaction</code> for a description of what is
+        the transaction state.
+    </p>
 
     <h3 id="okvs-transaction"><code>(okvs-transaction? obj)</code></h3>
 
     <p>Return <code>#t</code> if <code>OBJ</code> is a <code>okvs</code> transaction,
         and <code>#f</code> otherwise.
+    </p>
 
-    <h3 id="okvs-transaction-commit"><code>(okvs-transaction-commit transaction config)</code></h3>
+    <h3 id="make-default-state"><code>(make-default-state)</code></h3>
 
-    <p>Commit <code>TRANSACTION</code>.</p>
-
-    <p>No <code>CONFIG</code> options are specified.  An
-        implementation may or may not support some implementation
-        specific options.</p>
-
-    <h3 id="okvs-transaction-roll-back"><code>(okvs-transaction-roll-back transaction [config])</code></h3>
-
-    <p>Roll back <code>TRANSACTION</code>.</p>
-
-    <p>No <code>CONFIG</code> options are specified.  An
-        implementation may or may not support some implementation
-        specific options.</p>
+    <p>Return a <a href="https://srfi.schemers.org/srfi-125/">SRFI
+        125: Intermediate hash table</a>
+        with a comparator returned by the
+        <a href="https://srfi.schemers.org/srfi-128/srfi-128.html#Defaultcomparators">SRFI
+        128: Comparators</a> procedure
+        <code>(make-default-comparator)</code>.
+    </p>
 
     <h3 id="okvs-in-transaction"><code>(okvs-in-transaction okvs proc [failure [success [make-state [config]]]])</code></h3>
 
@@ -200,10 +255,16 @@
         raises an exception, the transaction is rolled back and <code>FAILURE</code>
         is called with the exception condition. By default <code>FAILURE</code>
         is <code>raise</code> and <code>SUCCESS</code> is <code>identity</code>.
-        <code>MAKE-STATE</code> must return a mutable scheme object as described
-        in <a href="okvs-transaction-begin"><code>okvs-transaction-begin</code></a>.
-        <code>CONFIG</code> is passed as-is to <code>okvs-transaction-begin</code>.
+        The transaction must be associated with a newly created state
+        object as returned by <code>MAKE-STATE</code>. The default value
+        of <code>MAKE-STATE</code> is <code>make-default-state</code>. The
+        transaction state can be retrieved during the transaction
+        using the procedure <code>transaction-state</code>.
     </p>
+
+    <p>No <code>CONFIG</code> options are specified.  An
+        implementation may or may not support some implementation
+        specific options.</p>
 
     <h3 id="okvs-ref"><code>(okvs-ref okvs-or-transaction key)</code></h3>
 
@@ -336,11 +397,45 @@
         </tbody>
     </table>
 
+    <h3 id="hooks">Hooks</h3>
+
+    <p><a href="https://srfi.schemers.org/srfi-173/">SRFI-173</a> hooks
+        are procedures that are executed at specific time during the
+        life of an okvs. They allow to sneak into transaction life
+        cycles to validate mutations, keep indices synchronized or
+        other operations.</p>
+
+    <h4 id="okvs-hook-on-transaction-begin"><code>(okvs-hook-on-transaction-begin okvs)</code></h4>
+
+    <p>This procedure return the hook object associated with the start
+        of a transaction</p>
+
+    <p>The hook is run after the transaction is started inside
+        <code>okvs-in-transaction</code>. It takes the transaction
+        object as first and only argument.</p>
+
+    <h4 id="okvs-hook-on-transaction-commit"><code>(okvs-hook-on-transaction-commit okvs)</code></h4>
+
+    <p>This procedure return the hook object associated with the
+        commit of a transaction</p>
+
+    <p>The hook is run before the transaction is commited inside
+        <code>okvs-in-transaction</code>. It takes the transaction
+        object as first and only argument.</p>
+
+    <h3 id="make-default-engine"><code>(make-default-engine)</code></h3>
+
+    <p>Return an <code>engine</code> record for the current <code>okvs</code>
+        implementation.</p>
+
     <h1>Implementation</h1>
 
     <p>The <a href="https://srfi.schemers.org/srfi-167/srfi-167.tgz">sample
-      implementation</a> relies on scheme mappings (SRFI 146) and
-      generators (SRFI 158).</p>
+        implementation</a> relies on scheme mappings (SRFI 146),
+        generators (SRFI 158) and hooks (SRFI 173). Another implementation
+        is available in <a href="https://github.com/scheme-live/around-ordered-key-value-stores/">around
+        ordered key-value stores</a>.
+    </p>
 
     <h1>Acknowledgements</h1>
 

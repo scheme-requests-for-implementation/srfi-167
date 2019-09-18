@@ -60,7 +60,7 @@ License: OpenLDAP Public License
 
 Unlike SRFI-167, WiredTiger exposes multiple key-value spaces.  It has
 a notion of cursor and allows one to navigate key space with `previous`
-and `next.  It is a superset of SRFI 167.
+and `next`.  It is a superset of SRFI 167.
 
 Guile: https://framagit.org/a-guile-mind/guile-wiredtiger/#guile-wiredtiger
 Chez: https://git.sr.ht/~amz3/azul/tree/master/src/cffi/wiredtiger.scm
