@@ -215,16 +215,19 @@
         case where it is provided, it must be an association list. It is
         implementation dependent.</p>
 
+    <h3 id="make-default-state"><code>(make-default-state)</code></h3>
+
+    <p>Return a <a href="https://srfi.schemers.org/srfi-125/">SRFI
+        125: Intermediate hash table</a>
+        with a comparator returned by the
+        <a href="https://srfi.schemers.org/srfi-128/srfi-128.html#Defaultcomparators">SRFI
+            128: Comparators</a> procedure
+        <code>(make-default-comparator)</code>.
+    </p>
+
     <p>No <code>CONFIG</code> options are specified.  An
         implementation may or may not support some implementation
         specific options.</p>
-
-    <h3 id="okvs-transaction-state"><code>(okvs-transaction-state transaction)</code></h3>
-
-    <p>Return the state associated with <code>TRANSACTION</code>. See
-        <code>okvs-in-transaction</code> for a description of what is
-        the transaction state.
-    </p>
 
     <h3 id="okvs-transaction"><code>(okvs-transaction? obj)</code></h3>
 
@@ -232,14 +235,11 @@
         and <code>#f</code> otherwise.
     </p>
 
-    <h3 id="make-default-state"><code>(make-default-state)</code></h3>
+    <h3 id="okvs-transaction-state"><code>(okvs-transaction-state transaction)</code></h3>
 
-    <p>Return a <a href="https://srfi.schemers.org/srfi-125/">SRFI
-        125: Intermediate hash table</a>
-        with a comparator returned by the
-        <a href="https://srfi.schemers.org/srfi-128/srfi-128.html#Defaultcomparators">SRFI
-        128: Comparators</a> procedure
-        <code>(make-default-comparator)</code>.
+    <p>Return the state associated with <code>TRANSACTION</code>. See
+        <code>okvs-in-transaction</code> for a description of what is
+        the transaction state.
     </p>
 
     <h3 id="okvs-in-transaction"><code>(okvs-in-transaction okvs proc [failure [success [make-state [config]]]])</code></h3>
