@@ -247,7 +247,7 @@
         returned to the <code>SUCCESS</code> procedure. If <code>PROC</code>
         raises an exception, the transaction is rolled back and <code>FAILURE</code>
         is called with the exception condition. By default <code>FAILURE</code>
-        is <code>raise</code> and <code>SUCCESS</code> is <code>identity</code>.
+        is <code>raise</code> and <code>SUCCESS</code> is <code>values</code>.
         The transaction must be associated with a newly created state
         object as returned by <code>MAKE-STATE</code>. The default value
         of <code>MAKE-STATE</code> is <code>make-default-state</code>. The
