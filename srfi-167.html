@@ -101,47 +101,59 @@
     <p>Return <code>#t</code> if <code>OBJ</code> is an engine record
         instance. Otherwise, it returns <code>#f</code>.</p>
 
+    <h3 id="engine-open"><code>(engine-open engine okvs [config])</code></h3>
+
+    <p>Call the procedure <code>okvs-open</code>.</p>
+
+    <h3 id="engine-close"><code>(engine-close engine okvs [config])</code></h3>
+
+    <p>Call the procedure <code>okvs-close</code>.</p>
+
+    <h3 id="engine-in-transaction"><code>(engine-in-transaction engine okvs proc [failure [success [make-state [config]]]])</code></h3>
+
+    <p>Call the procedure <code>okvs-in-transaction</code>.</p>
+
     <h3 id="engine-ref"><code>(engine-ref engine)</code></h3>
 
-    <p>Return the procedure <code>okvs-ref</code>.</p>
+    <p>Call the procedure <code>okvs-ref</code>.</p>
 
-    <h3 id="engine-set"><code>(engine-set engine)</code></h3>
+    <h3 id="engine-set"><code>(engine-set! engine)</code></h3>
 
-    <p>Return the procedure <code>okvs-set!</code>.</p>
+    <p>Call the procedure <code>okvs-set!</code>.</p>
 
-    <h3 id="engine-delete"><code>(engine-delete engine)</code></h3>
+    <h3 id="engine-delete"><code>(engine-delete! engine)</code></h3>
 
-    <p>Return the procedure <code>okvs-delete!</code></p>
+    <p>Call the procedure <code>okvs-delete!</code></p>
 
-    <h3 id="engine-range-remove"><code>(engine-range-remove engine)</code></h3>
+    <h3 id="engine-range-remove"><code>(engine-range-remove! engine)</code></h3>
 
-    <p>Return the procedure <code>okvs-range-remove!</code></p>
+    <p>Call the procedure <code>okvs-range-remove!</code></p>
 
     <h3 id="engine-range"><code>(engine-range engine)</code></h3>
 
-    <p>Return the procedure <code>okvs-range</code>.</p>
+    <p>Call the procedure <code>okvs-range</code>.</p>
 
     <h3 id="engine-prefix-range"><code>(engine-prefix-range engine)</code></h3>
 
-    <p>Return the procedure <code>okvs-prefix-range</code>.</p>
+    <p>Call the procedure <code>okvs-prefix-range</code>.</p>
 
     <h3 id="engine-hook-on-transaction-begin"><code>(engine-hook-on-transaction-begin engine)</code></h3>
 
-    <p>Return the procedure <code>okvs-hook-on-transaction-begin</code>.</p>
+    <p>Call the procedure <code>okvs-hook-on-transaction-begin</code>.</p>
 
     <h3 id="engine-hook-on-transaction-commit"><code>(engine-hook-on-transaction-commit engine)</code></h3>
 
-    <p>Return the procedure <code>okvs-hook-on-transaction-commit</code>.</p>
+    <p>Call the procedure <code>okvs-hook-on-transaction-commit</code>.</p>
 
     <h3 id="engine-pack"><code>(engine-pack engine)</code></h3>
 
-    <p>Return a packing procedure that allows to encode some scheme types
+    <p>Call a packing procedure that allows to encode some scheme types
         into bytevectors preserving their natural order. The supported Scheme
         types is implementation dependent.</p>
 
     <h3 id="engine-unpack"><code>(engine-unpack engine)</code></h3>
 
-    <p>Return an unpacking procedure that will decode a bytevector
+    <p>Call an unpacking procedure that will decode a bytevector
         encoded with the above pack procedure into a Scheme object.</p>
 
     <h2 id="okvs-and-transaction">Okvs and Transaction</h2>
