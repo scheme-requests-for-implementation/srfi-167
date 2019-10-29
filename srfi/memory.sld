@@ -20,13 +20,14 @@
 ;;; WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 ;;; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 ;;; OTHER DEALINGS IN THE SOFTWARE.
-(define-library (okvs)
+(define-library (srfi 167 memory)
 
   (export okvs-open
           okvs?
           okvs-close
-          okvs-transaction-state
+          make-default-state
           okvs-transaction?
+          okvs-transaction-state
           okvs-in-transaction
           okvs-ref
           okvs-set!
@@ -35,37 +36,57 @@
           okvs-range
           okvs-prefix-range
           okvs-hook-on-transaction-begin
-          okvs-hook-on-transaction-commit)
-
-  (import (only (chezscheme) void))
+          okvs-hook-on-transaction-commit
+          make-default-engine)
 
   (import (scheme base))
   (import (scheme case-lambda))
-  (import (scheme list))
-  (import (scheme hash-table))
-  (import (only (scheme bytevector)
-                bytevector=?
-                u8-list->bytevector
-                bytevector->u8-list))
-  (import (scheme comparator))
-  (import (scheme generator))
-  (import (scheme mapping))
-
-  (import (hook))
+  (import (srfi 1))
+  (import (srfi 125))
+  (import (srfi 128))
+  (import (srfi 145))
+  (import (srfi 146))
+  (import (srfi 158))
+  (import (srfi 173))
+  (import (srfi 167 pack))
+  (import (srfi 167 engine))
 
   (begin
+
+    ;; helpers
+
+    (define (const v)
+      (lambda ()
+        v))
+
+    (define (void)
+      (when #f))
+
+    (define (bytevector=? bv other)
+      (if (not (= (bytevector-length bv) (bytevector-length other)))
+          #f
+          (let loop ((index 0))
+            (if (= (bytevector-length bv) index)
+                #t
+                (if (= (bytevector-u8-ref bv index)
+                       (bytevector-u8-ref other index))
+                    (loop (+ index 1))
+                    #f)))))
+
+    (define (u8-list->bytevector lst)
+      (apply bytevector lst))
+
+    (define (bytevector->u8-list bv)
+      (let loop ((index 0)
+                 (out '()))
+        (if (= index (bytevector-length bv))
+            (reverse out)
+            (loop (+ index 1)
+                  (cons (bytevector-u8-ref bv index) out)))))
 
     ;;
     ;; This a memory based okvs implementation backed by the r7rs
     ;; library (scheme mapping). Roll-back operation is supported.
-    ;;
-    ;; This requires arew scheme:
-    ;;
-    ;;  https://git.sr.ht/~amz3/chez-scheme-arew
-    ;;
-    ;; It will be easier to test from 'around' repository:
-    ;;
-    ;;  https://github.com/scheme-live/around-ordered-key-value-stores/
     ;;
 
     (define-record-type <okvs>
@@ -111,11 +132,14 @@
       (make-comparator bytevector? bytevector=? lexicographic<? vector-hash))
 
     (define (okvs-open home . args)
+      (assume (null? args))
+      (assume (not home))
       (make-okvs (mapping (make-lexicographic-comparator))
                  (make-hook 1)
                  (make-hook 1)))
 
-    (define (okvs-close . args)
+    (define (okvs-close okvs . args)
+      (assume (null? args))
       (void))
 
     (define-record-type <okvs-transaction>
@@ -133,8 +157,7 @@
         transaction))
 
     (define (okvs-transaction-commit transaction . args)
-      (hook-run (okvs-hook-on-transaction-commit
-                 (okvs-transaction-database transaction))
+      (hook-run (okvs-hook-on-transaction-commit (okvs-transaction-database transaction))
                 transaction)
       (okvs-store! (okvs-transaction-database transaction)
                    (okvs-transaction-store transaction)))
@@ -143,15 +166,16 @@
       (void))
 
     (define (%okvs-in-transaction okvs proc failure success make-state config)
+      (assume (null? config))
       (let ((transaction (okvs-transaction-begin okvs make-state config)))
         (guard (ex
                 (else
                  (okvs-transaction-roll-back transaction)
                  (failure ex)))
           (call-with-values (lambda () (proc transaction))
-              (lambda out
-                (okvs-transaction-commit transaction)
-                (apply success out))))))
+            (lambda out
+              (okvs-transaction-commit transaction)
+              (apply success out))))))
 
     (define (make-default-state)
       (make-hash-table (make-default-comparator)))
@@ -169,13 +193,21 @@
          (%okvs-in-transaction okvs proc failure success make-state config))))
 
     (define (okvs-ref okvs-or-transaction key)
-      (mapping-ref/default (okvs-transaction-store okvs-or-transaction) key #f))
+      (if (okvs-transaction? okvs-or-transaction)
+          (mapping-ref/default (okvs-transaction-store okvs-or-transaction) key #f)
+          (mapping-ref/default (okvs-store okvs-or-transaction) key #f)))
 
     (define (okvs-set! okvs-or-transaction key value)
-      (okvs-transaction-store! okvs-or-transaction (mapping-set (okvs-transaction-store okvs-or-transaction) key value)))
+      (if (okvs-transaction? okvs-or-transaction)
+          (okvs-transaction-store! okvs-or-transaction (mapping-set (okvs-transaction-store okvs-or-transaction) key value))
+          (okvs-store! okvs-or-transaction
+                       (mapping-set (okvs-store okvs-or-transaction) key value))))
 
     (define (okvs-delete! okvs-or-transaction key)
-      (okvs-transaction-store! okvs-or-transaction (mapping-delete (okvs-transaction-store okvs-or-transaction) key)))
+      (if (okvs-transaction? okvs-or-transaction)
+          (okvs-transaction-store! okvs-or-transaction (mapping-delete (okvs-transaction-store okvs-or-transaction) key))
+          (okvs-set! okvs-or-transaction
+                     (mapping-delete (okvs-store okvs-or-transaction) key))))
 
     (define (okvs-range-remove! okvs-or-transaction start-key start-include? end-key end-include?)
       (let ((generator (okvs-range okvs-or-transaction start-key start-include? end-key end-include?)))
@@ -191,14 +223,46 @@
             (list (cons key value))
             '())))
 
-    (define (okvs-range okvs-or-transaction start-key start-include? end-key end-include? . args)
+    (define (explode config)
+      (if (null? config)
+          (values #f #f #f)
+          (let ((limit #f)
+                (reverse? #f)
+                (offset #f))
+            (let loop ((config (car config)))
+              (if (null? config)
+                  (values limit reverse? offset)
+                  (case (caar config)
+                    ((limit)
+                     (set! limit (cdar config))
+                     (loop (cdr config)))
+                    ((reverse?)
+                     (set! reverse? (cdar config))
+                     (loop (cdr config)))
+                    ((offset)
+                     (set! offset (cdar config))
+                     (loop (cdr config)))
+                    (else (error 'okvs "Unkown configuration key" (caar config)))))))))
+
+    (define (massage config lst)
+      (call-with-values (lambda () (explode config))
+        (lambda (limit reverse? offset)
+          (unless reverse?
+            (set! lst (reverse lst)))
+          (when offset
+            (set! lst (drop lst offset)))
+          (when limit
+            (set! lst (take lst limit)))
+          lst)))
+
+    (define (okvs-range okvs-or-transaction start-key start-include? end-key end-include? . config)
       (let* ((store (okvs-transaction-store okvs-or-transaction)))
         (let loop ((key (mapping-key-successor store start-key (const #f)))
                    (out (if start-include?
                             (okvs-range-init store start-key)
                             '())))
           (if (not key)
-              (list->generator (reverse! out))
+              (list->generator (massage config out))
               (case (lexicographic-compare key end-key)
                 ((-1)
                  (loop (mapping-key-successor store key (const #f))
@@ -212,7 +276,7 @@
     (define (strinc bytevector)
       "Return the first bytevector that is not prefix of BYTEVECTOR"
       ;; See https://git.io/fj34F, TODO: OPTIMIZE
-      (let ((bytes (reverse! (bytevector->u8-list bytevector))))
+      (let ((bytes (reverse (bytevector->u8-list bytevector))))
         ;; strip #xFF
         (let loop ((out bytes))
           (when (null? out)
@@ -221,9 +285,24 @@
               (loop (cdr out))
               (set! bytes out)))
         ;; increment first byte, reverse and return the bytevector
-        (u8-list->bytevector (reverse! (cons (+ 1 (car bytes)) (cdr bytes))))))
+        (u8-list->bytevector (reverse (cons (+ 1 (car bytes)) (cdr bytes))))))
 
     (define (okvs-prefix-range okvs-or-transaction prefix . config)
       (apply okvs-range okvs-or-transaction prefix #t (strinc prefix) #f config))
+
+    (define (make-default-engine)
+      (make-engine okvs-open
+                   okvs-close
+                   okvs-in-transaction
+                   okvs-ref
+                   okvs-set!
+                   okvs-delete!
+                   okvs-range-remove!
+                   okvs-range
+                   okvs-prefix-range
+                   okvs-hook-on-transaction-begin
+                   okvs-hook-on-transaction-commit
+                   pack
+                   unpack))
 
     ))
