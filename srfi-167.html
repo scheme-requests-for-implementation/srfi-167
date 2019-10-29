@@ -345,18 +345,21 @@
         </thead>
         <tbody>
             <tr>
-                <td><code>'limit</code></td>
-                <td>indicates the maximum number of key-value pairs to return.</td>
-            </tr>
-            <tr>
                 <td><code>'reverse?</code></td>
                 <td>whether key-value pairs will be returned in
-                    reverse lexicographical order beginning at the end of
-                    the range.</td>
+                    reverse lexicographical order beginning at the end
+                    of the range. It must be "applied" before the
+                    other options".</td>
             </tr>
             <tr>
                 <td><code>'offset</code></td>
-                <td>specify how many keys must be skipped.</td>
+                <td>specify how many keys must be skipped. It must be
+                applied after <code>reverse?</code> but before <code>limit</code></td>
+            </tr>
+            <tr>
+                <td><code>'limit</code></td>
+                <td>indicates the maximum number of key-value pairs to
+                return. It must be applied at last.</td>
             </tr>
         </tbody>
     </table>
