@@ -92,63 +92,71 @@
         procedures that must be passed to the constructor of layers. It must
         be shared between <code>okvs</code> implementations.</p>
 
-    <p>The <code>okvs</code> library must contain an instance of the
-        <code>engine</code> record exported as <code>engine</code>
-        that is bound to the procedures that it defines.</p>
-
-    <h3 id="make-engine"><code>(make-engine ref set delete range-remove range prefix-range hook-on-transaction-begin hook-on-transaction-commit pack unpack)</code></h3>
+    <h3 id="make-engine"><code>(make-engine open close in-transaction ref set delete range-remove range prefix-range hook-on-transaction-begin hook-on-transaction-commit pack unpack)</code></h3>
 
     <p>Return an <code>engine</code> record instance.</p>
 
     <h3 id="engine-predicate"><code>(engine? obj)</code></h3>
 
     <p>Return <code>#t</code> if <code>OBJ</code> is an engine record
-        instance. Otherwise, it returns <code>#f</code></p>
+        instance. Otherwise, it returns <code>#f</code>.</p>
 
-    <h3 id="engine-ref"><code>(engine-ref engine)</code></h3>
+    <h3 id="engine-open"><code>(engine-open engine okvs [config])</code></h3>
 
-    <p>Return the procedure <code>okvs-ref</code>.</p>
+    <p>Call the procedure <code>okvs-open</code>.</p>
 
-    <h3 id="engine-set"><code>(engine-set engine)</code></h3>
+    <h3 id="engine-close"><code>(engine-close engine okvs [config])</code></h3>
 
-    <p>Return the procedure <code>okvs-set!</code>.</p>
+    <p>Call the procedure <code>okvs-close</code>.</p>
 
-    <h3 id="engine-delete"><code>(engine-delete engine)</code></h3>
+    <h3 id="engine-in-transaction"><code>(engine-in-transaction engine okvs proc [failure [success [make-state [config]]]])</code></h3>
 
-    <p>Return the procedure <code>okvs-delete!</code></p>
+    <p>Call the procedure <code>okvs-in-transaction</code>.</p>
 
-    <h3 id="engine-range-remove"><code>(engine-range-remove engine)</code></h3>
+    <h3 id="engine-ref"><code>(engine-ref engine okvs key)</code></h3>
 
-    <p>Return the procedure <code>okvs-range-remove!</code></p>
+    <p>Call the procedure <code>okvs-ref</code>.</p>
 
-    <h3 id="engine-range"><code>(engine-range engine)</code></h3>
+    <h3 id="engine-set"><code>(engine-set! engine okvs key value)</code></h3>
 
-    <p>Return the procedure <code>okvs-range</code>.</p>
+    <p>Call the procedure <code>okvs-set!</code>.</p>
 
-    <h3 id="engine-range-prefix"><code>(engine-range-prefix engine)</code></h3>
+    <h3 id="engine-delete"><code>(engine-delete! engine okvs key)</code></h3>
 
-    <p>Return the procedure <code>okvs-range-prefix</code>.</p>
+    <p>Call the procedure <code>okvs-delete!</code></p>
 
-    <h3 id="engine-hook-on-transaction-begin"><code>(engine-hook-on-transaction-begin engine)</code></h3>
+    <h3 id="engine-range-remove"><code>(engine-range-remove! engine okvs start-key start-include? end-key end-include?)</code></h3>
 
-    <p>Return the procedure <code>okvs-hook-on-transaction-begin</code>.</p>
+    <p>Call the procedure <code>okvs-range-remove!</code></p>
 
-    <h3 id="engine-hook-on-transaction-commit"><code>(engine-hook-on-transaction-commit engine)</code></h3>
+    <h3 id="engine-range"><code>(engine-range engine okvs start-key start-include? end-key end-include? [config])</code></h3>
 
-    <p>Return the procedure <code>okvs-hook-on-transaction-commit</code>.</p>
+    <p>Call the procedure <code>okvs-range</code>.</p>
 
-    <h3 id="engine-pack"><code>(engine-pack engine)</code></h3>
+    <h3 id="engine-prefix-range"><code>(engine-prefix-range engine okvs prefix [config])</code></h3>
 
-    <p>Return a packing procedure that allows to encode some scheme types
+    <p>Call the procedure <code>okvs-prefix-range</code>.</p>
+
+    <h3 id="engine-hook-on-transaction-begin"><code>(engine-hook-on-transaction-begin engine okvs)</code></h3>
+
+    <p>Call the procedure <code>okvs-hook-on-transaction-begin</code>.</p>
+
+    <h3 id="engine-hook-on-transaction-commit"><code>(engine-hook-on-transaction-commit engine okvs)</code></h3>
+
+    <p>Call the procedure <code>okvs-hook-on-transaction-commit</code>.</p>
+
+    <h3 id="engine-pack"><code>(engine-pack engine okvs . key)</code></h3>
+
+    <p>Call a packing procedure that allows to encode some scheme types
         into bytevectors preserving their natural order. The supported Scheme
         types is implementation dependent.</p>
 
-    <h3 id="engine-unpack"><code>(engine-unpack engine)</code></h3>
+    <h3 id="engine-unpack"><code>(engine-unpack engine bytevector)</code></h3>
 
-    <p>Return an unpacking procedure that will decode a bytevector
+    <p>Call an unpacking procedure that will decode a bytevector
         encoded with the above pack procedure into a Scheme object.</p>
 
-    <h2 id="okvs-and-transaction"><code>okvs</code>Okvs and Transaction</h2>
+    <h2 id="okvs-and-transaction">Okvs and Transaction</h2>
 
     <p>A okvs is a mapping that may or may not support
       transactions.  Keys are lexicographically ordered bytevectors.
@@ -219,15 +227,14 @@
         case where it is provided, it must be an association list. It is
         implementation dependent.</p>
 
-    <p>No <code>CONFIG</code> options are specified.  An
-        implementation may or may not support some implementation
-        specific options.</p>
+    <h3 id="make-default-state"><code>(make-default-state)</code></h3>
 
-    <h3 id="okvs-transaction-state"><code>(okvs-transaction-state transaction)</code></h3>
-
-    <p>Return the state associated with <code>TRANSACTION</code>. See
-        <code>okvs-in-transaction</code> for a description of what is
-        the transaction state.
+    <p>Return a <a href="https://srfi.schemers.org/srfi-125/">SRFI
+        125: Intermediate hash table</a>
+        with a comparator returned by the
+        <a href="https://srfi.schemers.org/srfi-128/srfi-128.html#Defaultcomparators">SRFI
+            128: Comparators</a> procedure
+        <code>(make-default-comparator)</code>.
     </p>
 
     <h3 id="okvs-transaction"><code>(okvs-transaction? obj)</code></h3>
@@ -236,14 +243,11 @@
         and <code>#f</code> otherwise.
     </p>
 
-    <h3 id="make-default-state"><code>(make-default-state)</code></h3>
+    <h3 id="okvs-transaction-state"><code>(okvs-transaction-state transaction)</code></h3>
 
-    <p>Return a <a href="https://srfi.schemers.org/srfi-125/">SRFI
-        125: Intermediate hash table</a>
-        with a comparator returned by the
-        <a href="https://srfi.schemers.org/srfi-128/srfi-128.html#Defaultcomparators">SRFI
-        128: Comparators</a> procedure
-        <code>(make-default-comparator)</code>.
+    <p>Return the state associated with <code>TRANSACTION</code>. See
+        <code>okvs-in-transaction</code> for a description of what is
+        the transaction state.
     </p>
 
     <h3 id="okvs-in-transaction"><code>(okvs-in-transaction okvs proc [failure [success [make-state [config]]]])</code></h3>
@@ -255,7 +259,7 @@
         returned to the <code>SUCCESS</code> procedure. If <code>PROC</code>
         raises an exception, the transaction is rolled back and <code>FAILURE</code>
         is called with the exception condition. By default <code>FAILURE</code>
-        is <code>raise</code> and <code>SUCCESS</code> is <code>identity</code>.
+        is <code>raise</code> and <code>SUCCESS</code> is <code>values</code>.
         The transaction must be associated with a newly created state
         object as returned by <code>MAKE-STATE</code>. The default value
         of <code>MAKE-STATE</code> is <code>make-default-state</code>. The
@@ -315,7 +319,7 @@
         allow one to execute operations without a transaction, the operation should
         handle starting and committing the transaction.</p>
 
-    <h3 id="okvs-range"><code>(okvs-range okvs-or-transaction start-key start-include? end-key end-include? [CONFIG])</code></h3>
+    <h3 id="okvs-range"><code>(okvs-range okvs-or-transaction start-key start-include? end-key end-include? [config])</code></h3>
 
     <p>Return a SRFI 158 generator of key-value pairs where keys
         are between <code>START-KEY</code> bytevector and <code>END-KEY</code>
@@ -341,23 +345,26 @@
         </thead>
         <tbody>
             <tr>
-                <td><code>'limit</code></td>
-                <td>indicates the maximum number of key-value pairs to return.</td>
-            </tr>
-            <tr>
                 <td><code>'reverse?</code></td>
                 <td>whether key-value pairs will be returned in
-                    reverse lexicographical order beginning at the end of
-                    the range.</td>
+                    reverse lexicographical order beginning at the end
+                    of the range. It must be "applied" before the
+                    other options".</td>
             </tr>
             <tr>
                 <td><code>'offset</code></td>
-                <td>specify how many keys must be skipped.</td>
+                <td>specify how many keys must be skipped. It must be
+                applied after <code>reverse?</code> but before <code>limit</code></td>
+            </tr>
+            <tr>
+                <td><code>'limit</code></td>
+                <td>indicates the maximum number of key-value pairs to
+                return. It must be applied at last.</td>
             </tr>
         </tbody>
     </table>
 
-    <h3 id="okvs-prefix-range"><code>(okvs-prefix-range okvs-or-transaction prefix [CONFIG])</code></h3>
+    <h3 id="okvs-prefix-range"><code>(okvs-prefix-range okvs-or-transaction prefix [config])</code></h3>
 
     <p>Return a SRFI 158 generator of key-value pairs where keys
         starts with <code>PREFIX</code> bytevector.  The stream must
@@ -433,9 +440,7 @@
 
     <p>The <a href="https://srfi.schemers.org/srfi-167/srfi-167.tgz">sample
         implementation</a> relies on scheme mappings (SRFI 146),
-        generators (SRFI 158) and hooks (SRFI 173). Another implementation
-        is available in <a href="https://github.com/scheme-live/around-ordered-key-value-stores/">around
-        ordered key-value stores</a>.
+        generators (SRFI 158) and hooks (SRFI 173).</a>.
     </p>
 
     <h1>Acknowledgements</h1>
