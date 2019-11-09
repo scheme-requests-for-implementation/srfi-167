@@ -4,7 +4,7 @@
 
 This repository hosts [[https://srfi.schemers.org/srfi-167/][SRFI 167]]: Ordered Key Value Store, a [[https://srfi.schemers.org/][Scheme Request for Implementation]].
 
-This SRFI is in /draft/ status.
+This SRFI is in /final/ status.
 
 See also [[https://srfi.schemers.org/srfi-168/][SRFI 168: Generic Tuple Store Database]] and [[https://srfi.schemers.org/srfi-173/][SRFI 173: Hooks]].
 
