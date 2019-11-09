@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <title>SRFI 167: Ordered Key Value Store</title>
@@ -86,8 +86,8 @@
     <h2 id="engine"><code>engine</code></h2>
 
     <p>To allow the user of an <code>okvs</code> abstraction (also
-        known as layer) to easily swap implementations, it must be
-        written in terms of the procedures specified in this section</p>
+        known as a layer) to swap implementations easily, it must be
+        written in terms of the procedures specified in this section.</p>
 
     <p>The <code>engine</code> is a simple record of <code>okvs</code>
         procedures that must be passed to the constructor of layers. It must
@@ -150,7 +150,7 @@
 
     <p>Call a packing procedure that allows to encode some scheme types
         into bytevectors preserving their natural order. The supported Scheme
-        types is implementation dependent.</p>
+        types are implementation dependent.</p>
 
     <h3 id="engine-unpack"><code>(engine-unpack engine bytevector)</code></h3>
 
@@ -256,7 +256,7 @@
     <p>Start a transaction against <code>OKVS</code> and pass the
         transaction object as argument to <code>PROC</code>. When
         <code>PROC</code> returns, the transaction is committed and
-        <code>okvs-in-transaction</code> applies whatever <code>PROC</code>
+        <code>okvs-in-transaction</code> passes whatever <code>PROC</code>
         returned to the <code>SUCCESS</code> procedure. If <code>PROC</code>
         raises an exception, the transaction is rolled back and <code>FAILURE</code>
         is called with the exception condition. By default <code>FAILURE</code>
@@ -279,8 +279,8 @@
         key, return <code>#f</code>.</p>
 
     <p><code>OKVS-OR-TRANSACTION</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
-        In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object
-        the implementation should execute the operation, preferably,
+        In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object,
+        the implementation should execute the operation, preferably
         without starting a transaction. If the underlying engine doesn't
         allow one to execute operations without a transaction, the operation should
         handle starting and committing the transaction.</p>
@@ -291,8 +291,8 @@
         bytevector using <code>OKVS-OR-TRANSACTION</code>.</p>
 
     <p><code>OKVS-OR-TRANSACTION</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
-        In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object
-        the implementation should execute the operation, preferably,
+        In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object,
+        the implementation should execute the operation, preferably
         without starting a transaction. If the underlying engine doesn't
         allow one to execute operations without a transaction, the operation should
         handle starting and committing the transaction.</p>
@@ -303,8 +303,8 @@
         using <code>OKVS-OR-TRANSACTION</code>.</p>
 
     <p><code>OKVS-OR-TRANSACTION</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
-        In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object
-        the implementation should execute the operation, preferably,
+        In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object,
+        the implementation should execute the operation, preferably
         without starting a transaction. If the underlying engine doesn't
         allow one to execute operations without a transaction, the operation should
         handle starting and committing the transaction.</p>
@@ -314,8 +314,8 @@
     <p>Remove all pairs in the specified range.</p>
 
     <p><code>OKVS-OR-TRANSACTION</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
-        In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object
-        the implementation should execute the operation, preferably,
+        In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object,
+        the implementation should execute the operation, preferably
         without starting a transaction. If the underlying engine doesn't
         allow one to execute operations without a transaction, the operation should
         handle starting and committing the transaction.</p>
@@ -323,14 +323,14 @@
     <h3 id="okvs-range"><code>(okvs-range okvs-or-transaction start-key start-include? end-key end-include? [config])</code></h3>
 
     <p>Return a SRFI 158 generator of key-value pairs where keys
-        are between <code>START-KEY</code> bytevector and <code>END-KEY</code>
+        are between <code>START-KEY</code> bytevector and <code>END-KEY</code>,
         possibly including the boundaries depending on <code>START-INCLUDE?</code>
-        and <code>END-INCLUDE?</code>.  The stream must lexicographically
+        and <code>END-INCLUDE?</code>.  The stream must be lexicographically
         ordered. <code>CONFIG</code> is optional.</p>
 
     <p><code>OKVS-OR-TRANSACTION</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
-        In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object
-        the implementation should execute the operation, preferably,
+        In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object,
+        the implementation should execute the operation, preferably
         without starting a transaction. If the underlying engine doesn't
         allow one to execute operations without a transaction, the operation should
         handle starting and committing the transaction.</p>
@@ -350,32 +350,31 @@
                 <td>whether key-value pairs will be returned in
                     reverse lexicographical order beginning at the end
                     of the range. It must be "applied" before the
-                    other options".</td>
+                    other options.</td>
             </tr>
             <tr>
                 <td><code>'offset</code></td>
                 <td>specify how many keys must be skipped. It must be
-                applied after <code>reverse?</code> but before <code>limit</code></td>
+                applied after <code>reverse?</code> but before <code>limit</code>.</td>
             </tr>
             <tr>
                 <td><code>'limit</code></td>
                 <td>indicates the maximum number of key-value pairs to
-                return. It must be applied at last.</td>
+                return. It must be applied last.</td>
             </tr>
         </tbody>
     </table>
 
     <h3 id="okvs-prefix-range"><code>(okvs-prefix-range okvs-or-transaction prefix [config])</code></h3>
 
-    <p>Return a SRFI 158 generator of key-value pairs where keys
-        starts with <code>PREFIX</code> bytevector.  The stream must
+    <p>Return a SRFI 158 generator of key-value pairs where the keys
+        start with <code>PREFIX</code> bytevector.  The stream must be
         lexicographically ordered.  <code>PREFIX</code> can be the empty
-        bytevector, in which case the all the pairs are returned in a
-        generator.</p>
+        bytevector, in which case the all the pairs are included.</p>
 
     <p><code>OKVS-OR-TRANSACTION</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
-        In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object
-        the implementation should execute the operation, preferably,
+        In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object,
+        the implementation should execute the operation, preferably
         without starting a transaction. If the underlying engine doesn't
         allow one to execute operations without a transaction, the operation should
         handle starting and committing the transaction.</p>
@@ -410,7 +409,7 @@
 
     <p><a href="https://srfi.schemers.org/srfi-173/">SRFI-173</a> hooks
         are procedures that are executed at specific times during the
-        life of an okvs. They allow one to sneak into transaction life
+        life of an <code>okvs</code>. They allow one to sneak into transaction life
         cycles to validate mutations, keep indices synchronized, or
         carry out other operations.</p>
 
@@ -421,7 +420,7 @@
 
     <p>The hook is run after the transaction is started inside
         <code>okvs-in-transaction</code>. It takes the transaction
-        object as first and only argument.</p>
+        object as its first and only argument.</p>
 
     <h4 id="okvs-hook-on-transaction-commit"><code>(okvs-hook-on-transaction-commit okvs)</code></h4>
 
@@ -430,7 +429,7 @@
 
     <p>The hook is run before the transaction is committed inside
         <code>okvs-in-transaction</code>. It takes the transaction
-        object as first and only argument.</p>
+        object as its first and only argument.</p>
 
     <h3 id="make-default-engine"><code>(make-default-engine)</code></h3>
 
@@ -441,12 +440,12 @@
 
     <p>The <a href="https://srfi.schemers.org/srfi-167/srfi-167.tgz">sample
         implementation</a> relies on scheme mappings (SRFI 146),
-        generators (SRFI 158) and hooks (SRFI 173).</a>.
+        generators (SRFI 158) and hooks (SRFI 173).
     </p>
 
     <h1>Acknowledgements</h1>
 
-    <p>Credits goes to the authors of  <a href="http://www.wiredtiger.com/">WiredTiger</a>
+    <p>Credit goes to the authors of  <a href="http://www.wiredtiger.com/">WiredTiger</a>
       and <a href="https://www.foundationdb.org/">FoundationDB</a> for
       their work on their respective database engines.  The author
       would like to thank Arthur A. Gleckler and Marc
@@ -466,9 +465,9 @@
       Software is furnished to do so, subject to the following
       conditions:</p>
 
-    <p>The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the
-      Software.</p>
+    <p>The above copyright notice and this permission notice
+      (including the next paragraph) shall be included in all copies
+      or substantial portions of the Software.</p>
 
     <p>THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND,
       EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
