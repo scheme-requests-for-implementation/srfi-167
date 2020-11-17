@@ -186,6 +186,43 @@
            out)))
 
       (test
+       '(
+         (#u8(20 16 01) . #u8(2))
+         (#u8(20 17 01) . #u8(2))
+         )
+       (let ((okvs (engine-open engine #f)))
+         ;; set
+         (engine-in-transaction engine okvs
+                                (lambda (transaction)
+                                  (engine-set! engine transaction #u8(20 17 01) #u8(2))
+                                  (engine-set! engine transaction #u8(20 16 01) #u8(2))))
+         ;; get
+         (let ((out (engine-in-transaction engine okvs
+                                           (lambda (transaction)
+                                             (generator->list (engine-prefix-range engine transaction
+                                                                                   #u8(20)
+                                                                                   '((limit . 3))))))))
+           (engine-close engine okvs)
+           out)))
+
+      (test
+       '()
+       (let ((okvs (engine-open engine #f)))
+         ;; set
+         (engine-in-transaction engine okvs
+                                (lambda (transaction)
+                                  (engine-set! engine transaction #u8(20 17 01) #u8(2))
+                                  (engine-set! engine transaction #u8(20 16 01) #u8(2))))
+         ;; get
+         (let ((out (engine-in-transaction engine okvs
+                                           (lambda (transaction)
+                                             (generator->list (engine-prefix-range engine transaction
+                                                                                   #u8(20)
+                                                                                   '((offset . 3))))))))
+           (engine-close engine okvs)
+           out)))
+
+      (test
        '()
        (let ((keys '(#u8(1 42 0 20 2 55 97 98 53 118 54 110 103 113 119 49 117 53 121 111 57 50 104 110 107 105 109 112 105 104 0 21 102 21 103)
                          #u8(1 42 0 21 1 21 102 21 103 2 55 97 98 53 118 54 110 103 113 119 49 117 53 121 111 57 50 104 110 107 105 109 112 105 104 0)

@@ -29,6 +29,23 @@
         (loop (+ index 1)
               (cons (bytevector-u8-ref bv index) out)))))
 
+(define (take-upto items limit)
+  (let loop ((items items)
+             (i 0)
+             (acc '()))
+    (cond
+     ((null? items) (reverse acc))
+     ((< i limit) (loop (cdr items) (+ i 1) (cons (car items) acc)))
+     (else (reverse acc)))))
+
+(define (drop-upto items limit)
+  (let loop ((items items)
+             (i 0))
+    (cond
+     ((null? items) items)
+     ((< i limit) (loop (cdr items) (+ i 1)))
+     (else items))))
+
 ;;
 ;; This a memory based okvs implementation backed by the r7rs
 ;; library (scheme mapping). Roll-back operation is supported.
@@ -195,9 +212,9 @@
       (unless reverse?
         (set! lst (reverse lst)))
       (when offset
-        (set! lst (drop lst offset)))
+        (set! lst (drop-upto lst offset)))
       (when limit
-        (set! lst (take lst limit)))
+        (set! lst (take-upto lst limit)))
       lst)))
 
 (define (okvs-range okvs-or-transaction start-key start-include? end-key end-include? . config)
