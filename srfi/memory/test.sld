@@ -114,6 +114,30 @@
            out)))
 
       (test
+       '((#u8(01 02) . #u8(1))
+         (#u8(20 16) . #u8(2))
+         (#u8(20 16 1) . #u8(2))
+         (#u8(20 17) . #u8(3))
+         (#u8(20 17 1) . #u8(2))
+         (#u8(42 42) . #u8(5)))
+       (let ((okvs (engine-open engine #f)))
+         ;; set
+         (engine-in-transaction engine okvs
+                                (lambda (transaction)
+                                  (engine-set! engine transaction #u8(20 17 01) #u8(2))
+                                  (engine-set! engine transaction #u8(20 17) #u8(3))
+                                  (engine-set! engine transaction #u8(42 42) #u8(5))
+                                  (engine-set! engine transaction #u8(01 02) #u8(1))
+                                  (engine-set! engine transaction #u8(20 16) #u8(2))
+                                  (engine-set! engine transaction #u8(20 16 01) #u8(2))))
+         ;; get
+         (let ((out (engine-in-transaction engine okvs
+                                           (lambda (transaction)
+                                             (generator->list (engine-prefix-range engine transaction #u8()))))))
+           (engine-close engine okvs)
+           out)))
+
+      (test
        '((#u8(20 16) . #u8(2))
          (#u8(20 16 1) . #u8(2))
          (#u8(20 17) . #u8(3))

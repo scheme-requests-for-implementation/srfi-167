@@ -233,7 +233,12 @@
     (u8-list->bytevector (reverse (cons (+ 1 (car bytes)) (cdr bytes))))))
 
 (define (okvs-prefix-range okvs-or-transaction prefix . config)
-  (apply okvs-range okvs-or-transaction prefix #t (strinc prefix) #f config))
+  (if (zero? (bytevector-length prefix))
+      (let* ((store (okvs-transaction-store okvs-or-transaction))
+             (min-key (mapping-min-key store))
+             (max-key (mapping-max-key store)))
+        (apply okvs-range okvs-or-transaction min-key #t max-key #t config))
+      (apply okvs-range okvs-or-transaction prefix #t (strinc prefix) #f config)))
 
 (define (make-default-engine)
   (make-engine okvs-open
