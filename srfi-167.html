@@ -146,7 +146,7 @@
 
     <p>Call the procedure <code>okvs-hook-on-transaction-commit</code>.</p>
 
-    <h3 id="engine-pack"><code>(engine-pack engine okvs . key)</code></h3>
+    <h3 id="engine-pack"><code>(engine-pack engine . key)</code></h3>
 
     <p>Call a packing procedure that allows to encode some scheme types
         into bytevectors preserving their natural order. The supported Scheme
@@ -265,7 +265,7 @@
         object as returned by <code>MAKE-STATE</code>. The default value
         of <code>MAKE-STATE</code> is <code>make-default-state</code>. The
         transaction state can be retrieved during the transaction
-        using the procedure <code>transaction-state</code>.
+        using the procedure <code>okvs-transaction-state</code>.
     </p>
 
     <p>No <code>CONFIG</code> options are specified.  An
@@ -389,21 +389,29 @@
         </thead>
         <tbody>
             <tr>
-                <td><code>'limit</code></td>
-                <td>indicates the maximum number of key-value pairs to return.</td>
-            </tr>
-            <tr>
                 <td><code>'reverse?</code></td>
                 <td>whether key-value pairs will be returned in
-                    reverse lexicographical order beginning at the end of
-                    the range.</td>
+                    reverse lexicographical order beginning at the end
+                    of the range. It must be "applied" before the
+                    other options.</td>
             </tr>
             <tr>
                 <td><code>'offset</code></td>
-                <td>specify how many keys must be skipped.</td>
+                <td>specify how many keys must be skipped. It must be
+                applied after <code>reverse?</code> but before <code>limit</code>.</td>
+            </tr>
+            <tr>
+                <td><code>'limit</code></td>
+                <td>indicates the maximum number of key-value pairs to
+                return. It must be applied last.</td>
             </tr>
         </tbody>
     </table>
+
+    <h3 id="make-default-engine"><code>(make-default-engine)</code></h3>
+
+    <p>Return an <code>engine</code> record for the current <code>okvs</code>
+        implementation.</p>
 
     <h3 id="hooks">Hooks</h3>
 
@@ -430,11 +438,6 @@
     <p>The hook is run before the transaction is committed inside
         <code>okvs-in-transaction</code>. It takes the transaction
         object as its first and only argument.</p>
-
-    <h3 id="make-default-engine"><code>(make-default-engine)</code></h3>
-
-    <p>Return an <code>engine</code> record for the current <code>okvs</code>
-        implementation.</p>
 
     <h1>Implementation</h1>
 
