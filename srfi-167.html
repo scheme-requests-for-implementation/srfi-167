@@ -405,6 +405,11 @@
         </tbody>
     </table>
 
+    <h3 id="make-default-engine"><code>(make-default-engine)</code></h3>
+
+    <p>Return an <code>engine</code> record for the current <code>okvs</code>
+        implementation.</p>
+
     <h3 id="hooks">Hooks</h3>
 
     <p><a href="https://srfi.schemers.org/srfi-173/">SRFI 173</a> hooks
@@ -430,11 +435,6 @@
     <p>The hook is run before the transaction is committed inside
         <code>okvs-in-transaction</code>. It takes the transaction
         object as its first and only argument.</p>
-
-    <h3 id="make-default-engine"><code>(make-default-engine)</code></h3>
-
-    <p>Return an <code>engine</code> record for the current <code>okvs</code>
-        implementation.</p>
 
     <h1>Implementation</h1>
 
