@@ -43,118 +43,118 @@
          #t))
 
       (test
-       #vu8(1 2 3 42)
+       #u8(1 2 3 42)
        (let ((okvs (engine-open engine #f)))
          ;; set
          (engine-in-transaction engine okvs
                                 (lambda (transaction)
-                                  (engine-set! engine transaction #vu8(13 37) #vu8(1 2 3 42))))
+                                  (engine-set! engine transaction #u8(13 37) #u8(1 2 3 42))))
          ;; get
          (let ((out (engine-in-transaction engine okvs
                                            (lambda (transaction)
-                                             (engine-ref engine transaction #vu8(13 37))))))
+                                             (engine-ref engine transaction #u8(13 37))))))
            (engine-close engine okvs)
            out)))
 
       (test
-       #vu8(42)
+       #u8(42)
        (let ((okvs (engine-open engine #f)))
          ;; set
          (engine-in-transaction engine okvs
                                 (lambda (transaction)
-                                  (engine-set! engine transaction #vu8(13 37) #vu8(1 2 3 42))))
+                                  (engine-set! engine transaction #u8(13 37) #u8(1 2 3 42))))
          ;; overwrite
          (engine-in-transaction engine okvs
                                 (lambda (transaction)
-                                  (engine-set! engine transaction #vu8(13 37) #vu8(42))))
+                                  (engine-set! engine transaction #u8(13 37) #u8(42))))
          ;; get
          (let ((out (engine-in-transaction engine okvs
                                            (lambda (transaction)
-                                             (engine-ref engine transaction #vu8(13 37))))))
+                                             (engine-ref engine transaction #u8(13 37))))))
            (engine-close engine okvs)
            out)))
 
       (test
-       (list (cons #vu8(20 16) #vu8(2)) (cons #vu8(20 17) #vu8(3)))
+       (list (cons #u8(20 16) #u8(2)) (cons #u8(20 17) #u8(3)))
        (let ((okvs (engine-open engine #f)))
          ;; set
          (engine-in-transaction engine okvs
                                 (lambda (transaction)
-                                  (engine-set! engine transaction #vu8(20 18) #vu8(4))
-                                  (engine-set! engine transaction #vu8(20 16) #vu8(2))
-                                  (engine-set! engine transaction #vu8(20 15) #vu8(1))
-                                  (engine-set! engine transaction #vu8(20 19) #vu8(5))
-                                  (engine-set! engine transaction #vu8(20 17) #vu8(3))))
+                                  (engine-set! engine transaction #u8(20 18) #u8(4))
+                                  (engine-set! engine transaction #u8(20 16) #u8(2))
+                                  (engine-set! engine transaction #u8(20 15) #u8(1))
+                                  (engine-set! engine transaction #u8(20 19) #u8(5))
+                                  (engine-set! engine transaction #u8(20 17) #u8(3))))
          ;; get
          (let ((out (engine-in-transaction engine okvs
                                            (lambda (transaction)
                                              (generator->list
-                                              (engine-range engine transaction #vu8(20 16) #t #vu8(20 18) #f))))))
+                                              (engine-range engine transaction #u8(20 16) #t #u8(20 18) #f))))))
            (engine-close engine okvs)
            out)))
 
       (test
-       (list (cons #vu8(20 16) #vu8(2)) (cons #vu8(20 17 01) #vu8(3)))
+       (list (cons #u8(20 16) #u8(2)) (cons #u8(20 17 01) #u8(3)))
        (let ((okvs (engine-open engine #f)))
          ;; set
          (engine-in-transaction engine okvs
                                 (lambda (transaction)
-                                  (engine-set! engine transaction #vu8(20 18) #vu8(4))
-                                  (engine-set! engine transaction #vu8(20 16) #vu8(2))
-                                  (engine-set! engine transaction #vu8(20 15) #vu8(1))
-                                  (engine-set! engine transaction #vu8(20 19) #vu8(5))
-                                  ;; #vu8(20 17 01) lexicographically less than #vu8(20 18)
-                                  (engine-set! engine transaction #vu8(20 17 01) #vu8(3))))
+                                  (engine-set! engine transaction #u8(20 18) #u8(4))
+                                  (engine-set! engine transaction #u8(20 16) #u8(2))
+                                  (engine-set! engine transaction #u8(20 15) #u8(1))
+                                  (engine-set! engine transaction #u8(20 19) #u8(5))
+                                  ;; #u8(20 17 01) lexicographically less than #u8(20 18)
+                                  (engine-set! engine transaction #u8(20 17 01) #u8(3))))
          ;; get
          (let ((out (engine-in-transaction engine okvs
                                            (lambda (transaction)
                                              (generator->list
-                                              (engine-range engine transaction #vu8(20 16) #t #vu8(20 18) #f))))))
+                                              (engine-range engine transaction #u8(20 16) #t #u8(20 18) #f))))))
            (engine-close engine okvs)
            out)))
 
       (test
-       '((#vu8(20 16) . #vu8(2))
-         (#vu8(20 16 1) . #vu8(2))
-         (#vu8(20 17) . #vu8(3))
-         (#vu8(20 17 1) . #vu8(2)))
+       '((#u8(20 16) . #u8(2))
+         (#u8(20 16 1) . #u8(2))
+         (#u8(20 17) . #u8(3))
+         (#u8(20 17 1) . #u8(2)))
        (let ((okvs (engine-open engine #f)))
          ;; set
          (engine-in-transaction engine okvs
                                 (lambda (transaction)
-                                  (engine-set! engine transaction #vu8(20 17 01) #vu8(2))
-                                  (engine-set! engine transaction #vu8(20 17) #vu8(3))
-                                  (engine-set! engine transaction #vu8(42 42) #vu8(5))
-                                  (engine-set! engine transaction #vu8(01 02) #vu8(1))
-                                  (engine-set! engine transaction #vu8(20 16) #vu8(2))
-                                  (engine-set! engine transaction #vu8(20 16 01) #vu8(2))))
+                                  (engine-set! engine transaction #u8(20 17 01) #u8(2))
+                                  (engine-set! engine transaction #u8(20 17) #u8(3))
+                                  (engine-set! engine transaction #u8(42 42) #u8(5))
+                                  (engine-set! engine transaction #u8(01 02) #u8(1))
+                                  (engine-set! engine transaction #u8(20 16) #u8(2))
+                                  (engine-set! engine transaction #u8(20 16 01) #u8(2))))
          ;; get
          (let ((out (engine-in-transaction engine okvs
                                            (lambda (transaction)
-                                             (generator->list (engine-prefix-range engine transaction #vu8(20)))))))
+                                             (generator->list (engine-prefix-range engine transaction #u8(20)))))))
            (engine-close engine okvs)
            out)))
 
       (test
        '(
-         (#vu8(20 17) . #vu8(3))
-         (#vu8(20 16 1) . #vu8(2))
+         (#u8(20 17) . #u8(3))
+         (#u8(20 16 1) . #u8(2))
          )
        (let ((okvs (engine-open engine #f)))
          ;; set
          (engine-in-transaction engine okvs
                                 (lambda (transaction)
-                                  (engine-set! engine transaction #vu8(20 17 01) #vu8(2))
-                                  (engine-set! engine transaction #vu8(20 17) #vu8(3))
-                                  (engine-set! engine transaction #vu8(42 42) #vu8(5))
-                                  (engine-set! engine transaction #vu8(01 02) #vu8(1))
-                                  (engine-set! engine transaction #vu8(20 16) #vu8(2))
-                                  (engine-set! engine transaction #vu8(20 16 01) #vu8(2))))
+                                  (engine-set! engine transaction #u8(20 17 01) #u8(2))
+                                  (engine-set! engine transaction #u8(20 17) #u8(3))
+                                  (engine-set! engine transaction #u8(42 42) #u8(5))
+                                  (engine-set! engine transaction #u8(01 02) #u8(1))
+                                  (engine-set! engine transaction #u8(20 16) #u8(2))
+                                  (engine-set! engine transaction #u8(20 16 01) #u8(2))))
          ;; get
          (let ((out (engine-in-transaction engine okvs
                                            (lambda (transaction)
                                              (generator->list (engine-prefix-range engine transaction
-                                                                                   #vu8(20)
+                                                                                   #u8(20)
                                                                                    '((offset . 1)
                                                                                      (limit . 2)
                                                                                      (reverse? #t))))))))
@@ -163,19 +163,19 @@
 
       (test
        '()
-       (let ((keys '(#vu8(1 42 0 20 2 55 97 98 53 118 54 110 103 113 119 49 117 53 121 111 57 50 104 110 107 105 109 112 105 104 0 21 102 21 103)
-                         #vu8(1 42 0 21 1 21 102 21 103 2 55 97 98 53 118 54 110 103 113 119 49 117 53 121 111 57 50 104 110 107 105 109 112 105 104 0)
-                         #vu8(1 42 0 21 2 21 103 2 55 97 98 53 118 54 110 103 113 119 49 117 53 121 111 57 50 104 110 107 105 109 112 105 104 0 21 102))))
+       (let ((keys '(#u8(1 42 0 20 2 55 97 98 53 118 54 110 103 113 119 49 117 53 121 111 57 50 104 110 107 105 109 112 105 104 0 21 102 21 103)
+                         #u8(1 42 0 21 1 21 102 21 103 2 55 97 98 53 118 54 110 103 113 119 49 117 53 121 111 57 50 104 110 107 105 109 112 105 104 0)
+                         #u8(1 42 0 21 2 21 103 2 55 97 98 53 118 54 110 103 113 119 49 117 53 121 111 57 50 104 110 107 105 109 112 105 104 0 21 102))))
          (let ((okvs (engine-open engine #f)))
            ;; set
            (engine-in-transaction engine okvs
                                   (lambda (transaction)
                                     (let loop ((keys keys))
                                       (unless (null? keys)
-                                        (engine-set! engine transaction (car keys) #vu8(2))
+                                        (engine-set! engine transaction (car keys) #u8(2))
                                         (loop (cdr keys))))))
            ;; get
-           (let* ((prefix #vu8(1 42 0 20 2 57 98 57 55 54 97 104 97 104 50 51 113 110 52 102 121 97 99 49 53 120 99 118 48 100 0))
+           (let* ((prefix #u8(1 42 0 20 2 57 98 57 55 54 97 104 97 104 50 51 113 110 52 102 121 97 99 49 53 120 99 118 48 100 0))
                   (out (engine-in-transaction engine okvs
                                               (lambda (transaction)
                                                 (generator->list (engine-prefix-range engine transaction prefix))))))
