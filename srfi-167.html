@@ -304,7 +304,8 @@
     <h3 id="okvs-delete"><code>(okvs-delete! okvs-or-transaction key)</code></h3>
 
     <p>Delete the pair associated with <code>KEY</code> bytevector
-        using <code>OKVS-OR-TRANSACTION</code>.</p>
+        using <code>OKVS-OR-TRANSACTION</code>. The procedure may
+        not raise an error in case of a non-existent key.</p>
 
     <p><code>OKVS-OR-TRANSACTION</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
         In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object,
