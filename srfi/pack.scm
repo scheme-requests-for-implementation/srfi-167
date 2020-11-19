@@ -117,10 +117,18 @@
                                       #xFF))
             (loop (- index 1)))))))
 
-(define (%%pack accumulator)
+(define (%%pack-list items accumulator)
+  (accumulator *nested-code*)
+  (for-each (%%pack accumulator #t) items)
+  (accumulator #x00))
+
+(define (%%pack accumulator . nested)
   (lambda (value)
     (cond
-     ((eq? value *null*) (accumulator *null-code*))
+     ((eq? value *null*)
+      (accumulator *null-code*)
+      (when (pair? nested)
+        (accumulator #xFF)))
      ((eq? value #t) (accumulator *true-code*))
      ((eq? value #f) (accumulator *false-code*))
      ((bytevector? value) (accumulator *bytes-code*) (%%pack-bytes value accumulator))
@@ -132,7 +140,8 @@
      ((and (number? value) (exact? value) (< value 0)) (%%pack-negative-integer value accumulator))
      ((and (number? value) (exact? value) (= value 0)) (accumulator *int-zero-code*))
      ((and (number? value) (exact? value) (> value 0)) (%%pack-positive-integer value accumulator))
-     ;;
+     ;; list
+     ((list? value) (%%pack-list value accumulator))
      (else (error 'pack "unsupported data type" value)))))
 
 (define (%pack args accumulator)
@@ -209,40 +218,55 @@
                                        (bytevector-u8-ref bv (+ position 2 (car range)))))))
             (+ position 2 length))))
 
+(define (unpack-list bv code position)
+  (let loop ((items '())
+             (position (+ position 1)))
+    (if (= position (bytevector-length bv))
+        (values (reverse items) (+ position 1))
+        (if (zero? (bytevector-u8-ref bv position))
+            (if (and (< (+ position 1) (bytevector-length bv))
+                     (= (bytevector-u8-ref bv (+ position 1)) #xFF))
+                (loop (cons *null* items)
+                      (+ position 2))
+                (values (reverse items) (+ position 1)))
+            (call-with-values (lambda () (%unpack bv position))
+              (lambda (value position) (loop (cons value items) position)))))))
+
+(define (%unpack bv position)
+  (let ((code (bytevector-u8-ref bv position)))
+    (cond
+     ;; null, true, false and zero
+     ((= code *null-code*) (values *null* (+ position 1)))
+     ((= code *true-code*) (values #t (+ position 1)))
+     ((= code *false-code*) (values #f (+ position 1)))
+     ((= code *int-zero-code*) (values 0 (+ position 1)))
+     ;; variable length
+     ((= code *bytes-code*) (unpack-bytes bv (+ position 1)))
+     ((= code *string-code*)
+      (call-with-values (lambda () (unpack-bytes bv (+ position 1)))
+        (lambda (value position) (values (utf8->string value) position))))
+     ((= code *symbol-code*)
+      (call-with-values (lambda () (unpack-bytes bv (+ position 1)))
+        (lambda (value position) (values (string->symbol (utf8->string value)) position))))
+     ;; integers
+     ((and (> code *int-zero-code*) (< code *pos-int-end*))
+      (unpack-positive-integer bv code position))
+     ((and (> code *neg-int-start*) (< code *int-zero-code*))
+      (unpack-negative-integer bv code position))
+     ((= code *pos-int-end*)
+      (unpack-bigish-positive-integer bv code position))
+     ((= code *neg-int-start*)
+      (unpack-bigish-negative-integer bv code position))
+     ;; list
+     ((= code *nested-code*)
+      (unpack-list bv code position))
+     ;; oops
+     (else (error 'unpack "unsupported code" code)))))
+
 (define (unpack bv)
   (let loop ((position 0)
              (out '()))
     (if (= position (bytevector-length bv))
         (reverse out)
-        (let ((code (bytevector-u8-ref bv position)))
-          (cond
-           ;; null, true, false and zero
-           ((= code *null-code*) (loop (+ position 1) (cons *null* out)))
-           ((= code *true-code*) (loop (+ position 1) (cons #t out)))
-           ((= code *false-code*) (loop (+ position 1) (cons #f out)))
-           ((= code *int-zero-code*) (loop (+ position 1) (cons 0 out)))
-           ;; variable length
-           ((= code *bytes-code*)
-            (call-with-values (lambda () (unpack-bytes bv (+ position 1)))
-              (lambda (value position) (loop position (cons value out)))))
-           ((= code *string-code*)
-            (call-with-values (lambda () (unpack-bytes bv (+ position 1)))
-              (lambda (value position) (loop position (cons (utf8->string value) out)))))
-           ((= code *symbol-code*)
-            (call-with-values (lambda () (unpack-bytes bv (+ position 1)))
-              (lambda (value position) (loop position (cons (string->symbol (utf8->string value)) out)))))
-           ;; integers
-           ((and (> code *int-zero-code*) (< code *pos-int-end*))
-            (call-with-values (lambda () (unpack-positive-integer bv code position))
-              (lambda (value position) (loop position (cons value out)))))
-           ((and (> code *neg-int-start*) (< code *int-zero-code*))
-            (call-with-values (lambda () (unpack-negative-integer bv code position))
-              (lambda (value position) (loop position (cons value out)))))
-           ((= code *pos-int-end*)
-            (call-with-values (lambda () (unpack-bigish-positive-integer bv code position))
-              (lambda (value position) (loop position (cons value out)))))
-           ((= code *neg-int-start*)
-            (call-with-values (lambda () (unpack-bigish-negative-integer bv code position))
-              (lambda (value position) (loop position (cons value out)))))
-           ;; oops
-           (else (error 'unpack "unsupported code" code)))))))
+        (call-with-values (lambda () (%unpack bv position))
+          (lambda (value position) (loop position (cons value out)))))))
