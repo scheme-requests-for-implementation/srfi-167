@@ -1,11 +1,12 @@
 (define *null* '(null))
 
+;; reserved: #x03, #x04. #x23, #x24
 (define *null-code* #x00)
 ;; variable length
 (define *bytes-code* #x01)
 (define *string-code* #x02)
-(define *symbol-code* #x03)
 (define *nested-code* #x05)
+(define *symbol-code* #x06)
 ;; integers
 (define *neg-int-start* #x0B)
 (define *int-zero-code* #x14)
