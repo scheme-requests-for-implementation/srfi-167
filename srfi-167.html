@@ -97,7 +97,7 @@
         procedures that must be passed to the constructor of layers. It must
         be shared between <code>okvs</code> implementations.</p>
 
-    <h3 id="make-engine"><code>(make-engine open close in-transaction ref set delete range-remove range prefix-range hook-on-transaction-begin hook-on-transaction-commit pack unpack)</code></h3>
+    <h3 id="make-engine"><code>(make-engine open close in-transaction ref set delete range-remove range prefix-range hook-on-transaction-begin hook-on-transaction-commit pack unpack null)</code></h3>
 
     <p>Return an <code>engine</code> record instance.</p>
 
@@ -160,6 +160,10 @@
 
     <p>Call an unpacking procedure that will decode a bytevector
         encoded with the above pack procedure into a Scheme object.</p>
+
+    <h3 id="engine-null"><code>(engine-null engine)</code></h3>
+
+    <p>Return the engine-specific object representing the null value.</p>
 
     <h2 id="okvs-and-transaction">Okvs and Transaction</h2>
 

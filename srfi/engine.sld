@@ -15,7 +15,8 @@
    engine-hook-on-transaction-begin
    engine-hook-on-transaction-commit
    engine-pack
-   engine-unpack)
+   engine-unpack
+   engine-null)
 
   (import (scheme base))
 

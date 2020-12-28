@@ -257,6 +257,8 @@
         (apply okvs-range okvs-or-transaction min-key #t max-key #t config))
       (apply okvs-range okvs-or-transaction prefix #t (strinc prefix) #f config)))
 
+(define (okvs-null) *null*)
+
 (define (make-default-engine)
   (make-engine okvs-open
                okvs-close
@@ -270,4 +272,5 @@
                okvs-hook-on-transaction-begin
                okvs-hook-on-transaction-commit
                pack
-               unpack))
+               unpack
+               okvs-null))
