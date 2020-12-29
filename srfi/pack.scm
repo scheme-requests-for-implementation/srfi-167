@@ -144,12 +144,12 @@
      ((list? value) (%%pack-list value accumulator))
      (else (error 'pack "unsupported data type" value)))))
 
-(define (%pack args accumulator)
-  (for-each (%%pack accumulator) args))
+(define (%pack arg accumulator)
+  ((%%pack accumulator) arg))
 
-(define (pack . args)
+(define (pack arg)
   (let ((accumulator (bytevector-accumulator)))
-    (%pack args accumulator)
+    (%pack arg accumulator)
     (accumulator (eof-object))))
 
 ;; unpack
@@ -264,9 +264,8 @@
      (else (error 'unpack "unsupported code" code)))))
 
 (define (unpack bv)
-  (let loop ((position 0)
-             (out '()))
-    (if (= position (bytevector-length bv))
-        (reverse out)
-        (call-with-values (lambda () (%unpack bv position))
-          (lambda (value position) (loop position (cons value out)))))))
+  (call-with-values (lambda () (%unpack bv 0))
+    (lambda (value position)
+      (if (= position (bytevector-length bv))
+          value
+          (error 'unpack "trailing garbage following value")))))

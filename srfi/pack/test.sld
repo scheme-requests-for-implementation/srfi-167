@@ -31,4 +31,4 @@
             (list 'symbol)))
 
     (define (run-tests)
-      (test expected (unpack (apply pack expected))))))
+      (for-each (lambda (value) (test value (unpack (pack value)))) expected))))
