@@ -19,7 +19,16 @@
             42
             (expt 2 64)
             -42
-            (- (expt 2 64))))
+            (- (expt 2 64))
+            (list)
+            (list *null*)
+            (list #t #f)
+            (list 0 42 -42)
+            (list (list 0 42) -42)
+            (list (expt 2 64) (- (expt 2 64)))
+            (list #u8(42 101 255))
+            (list "hello world")
+            (list 'symbol)))
 
     (define (run-tests)
-      (test expected (unpack (apply pack expected))))))
+      (for-each (lambda (value) (test value (unpack (pack value)))) expected))))

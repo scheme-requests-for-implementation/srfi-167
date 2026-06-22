@@ -11,7 +11,8 @@
                hook-on-transaction-begin
                hook-on-transaction-commit
                pack
-               unpack)
+               unpack
+               null)
   engine?
   (open %engine-open)
   (close %engine-close)
@@ -25,7 +26,8 @@
   (hook-on-transaction-begin %engine-hook-on-transaction-begin)
   (hook-on-transaction-commit %engine-hook-on-transaction-commit)
   (pack %engine-pack)
-  (unpack %engine-unpack))
+  (unpack %engine-unpack)
+  (null %engine-null))
 
 (define (make-invoker accessor)
   (lambda (engine . args)
@@ -44,3 +46,4 @@
 (define engine-hook-on-transaction-commit (make-invoker %engine-hook-on-transaction-commit))
 (define engine-pack (make-invoker %engine-pack))
 (define engine-unpack (make-invoker %engine-unpack))
+(define engine-null (make-invoker %engine-null))
